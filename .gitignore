@@ -31,3 +31,10 @@ src-tauri/Cargo.lock
 *.dmg
 *.AppImage
 *.deb
+
+# Fichiers temporaires et docs de développement
+*RAPPORT*.md
+*INSTRUCTIONS*.md
+*BUILD*.bat
+*clean.bat
+KOON*PROJECT*.html

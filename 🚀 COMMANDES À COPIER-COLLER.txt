@@ -1,0 +1,124 @@
+╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║   🚀 PUSH VERS GITHUB - COMMANDES À COPIER-COLLER            ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 📋 ÉTAPE 1 : Ouvrir PowerShell
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Appuyez sur : Windows + R
+2. Tapez : powershell
+3. Appuyez sur : Entrée
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 📋 ÉTAPE 2 : Copier-coller ces commandes UNE PAR UNE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+cd c:\Users\DOM\Desktop\koon
+
+git add .
+
+git commit -m "Configuration GitHub Actions + Auto-update"
+
+git branch -M main
+
+git remote add origin https://github.com/mesiitso-ano/koonprojectapp.git
+
+git push -u origin main
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ ⚠️ SI "remote origin already exists"
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Copiez cette commande à la place :
+
+git remote set-url origin https://github.com/mesiitso-ano/koonprojectapp.git
+
+Puis relancez :
+
+git push -u origin main
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ ✅ SI LE PUSH RÉUSSIT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Vous verrez quelque chose comme :
+
+Enumerating objects: 47, done.
+Counting objects: 100% (47/47), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (42/42), done.
+Writing objects: 100% (47/47), 123.45 KiB | 1.23 MiB/s, done.
+Total 47 (delta 5), reused 0 (delta 0)
+To https://github.com/mesiitso-ano/koonprojectapp.git
+ * [new branch]      main -> main
+
+✅ C'EST BON ! GitHub Actions va commencer automatiquement.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 🔍 VOIR LE BUILD EN COURS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Ouvrez ce lien dans votre navigateur :
+
+https://github.com/mesiitso-ano/koonprojectapp/actions
+
+Vous verrez :
+  • Un build en cours (cercle jaune tournant)
+  • Temps estimé : ~15 minutes (1ère fois)
+  • Puis : cercle vert ✅ (réussi) ou rouge ❌ (échec)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 📦 TÉLÉCHARGER LE .EXE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Quand le build est terminé :
+
+1. Cliquez sur le build vert ✅
+2. Descendez jusqu'à "Artifacts"
+3. Téléchargez "koon-debug.zip"
+4. Décompressez
+5. Lancez koon.exe
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 🏷️ PUBLIER UNE VERSION OFFICIELLE (OPTIONNEL)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Pour créer une vraie Release (pas juste un artifact) :
+
+git tag v1.0.0
+
+git push origin v1.0.0
+
+→ GitHub créera automatiquement une Release avec le .exe !
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ ❓ PROBLÈMES POSSIBLES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ERREUR : "git: command not found"
+→ Git n'est pas installé
+→ Téléchargez : https://git-scm.com/download/win
+
+ERREUR : "Permission denied"
+→ Vous n'avez pas accès au repo
+→ Vérifiez votre compte GitHub
+
+ERREUR : "fatal: not a git repository"
+→ Le dossier n'est pas un repo Git
+→ Lancez d'abord : git init
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 RÉSUMÉ RAPIDE
+
+1. Ouvrir PowerShell
+2. Copier-coller les commandes ci-dessus
+3. Attendre 15 min
+4. Télécharger le .exe depuis GitHub Actions
+
+C'EST TOUT ! 🚀
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
