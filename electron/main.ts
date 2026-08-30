@@ -2,7 +2,8 @@ import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import path from 'path'
 import { setupIpcHandlers } from './ipc/handlers'
 import { initDatabase } from './db/database'
-import { startRelayServer } from './network/relay'
+import { startRelayServer, stopRelayServer } from './network/relay'
+import { disconnectFromRelay } from './network/client'
 
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged
 
@@ -46,12 +47,22 @@ function createWindow(): void {
 app.whenReady().then(async () => {
   initDatabase()
   setupIpcHandlers(ipcMain)
-  await startRelayServer()
+  try {
+    await startRelayServer()
+  } catch (err) {
+    console.error('[Main] Relay server failed to start:', err)
+    // App continues — users can still chat if relay is already running externally
+  }
   createWindow()
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
+})
+
+app.on('before-quit', () => {
+  disconnectFromRelay()
+  stopRelayServer()
 })
 
 app.on('window-all-closed', () => {

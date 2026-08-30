@@ -28,7 +28,11 @@ export const useContactsStore = create<ContactsState>((set) => ({
 
   removeContact: async (pubkey: string) => {
     const contacts = await window.koon.contacts.remove(pubkey)
-    set({ contacts, selectedPubkey: null })
+    set((state) => ({
+      contacts,
+      // Only deselect if the removed contact was the currently selected one
+      selectedPubkey: state.selectedPubkey === pubkey ? null : state.selectedPubkey,
+    }))
   },
 
   selectContact: (pubkey: string | null) => {

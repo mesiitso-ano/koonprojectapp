@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { useMessageStore } from '../store/messageStore'
+import { useMessages } from '../hooks/useMessages'
 
 interface Props {
   contactPubkey: string
@@ -7,7 +7,7 @@ interface Props {
 }
 
 export default function MessageInput({ contactPubkey, disabled }: Props) {
-  const { sendMessage } = useMessageStore()
+  const { sendMessage } = useMessages(contactPubkey)
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -18,7 +18,7 @@ export default function MessageInput({ contactPubkey, disabled }: Props) {
 
     setSending(true)
     try {
-      await sendMessage(contactPubkey, trimmed)
+      await sendMessage(trimmed)
       setText('')
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto'

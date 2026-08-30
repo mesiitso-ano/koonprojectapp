@@ -6,7 +6,7 @@ import {
   signMessage,
 } from '../crypto/identity'
 import { saveIdentity, loadIdentity, clearIdentity } from '../db/identityRepo'
-import { listContacts, addContact, removeContact } from '../db/contactsRepo'
+import { listContacts, addContact, removeContact, getContact } from '../db/contactsRepo'
 import { listMessages, saveMessage } from '../db/messagesRepo'
 import {
   connectToRelay,
@@ -65,6 +65,9 @@ export function setupIpcHandlers(ipcMain: IpcMain): void {
   ipcMain.handle('messages:send', (_e, contactPubkey: string, plaintext: string) => {
     const stored = loadIdentity()
     if (!stored) throw new Error('Identité non chargée')
+
+    const contact = getContact(contactPubkey)
+    if (!contact) throw new Error('Contact introuvable — impossible d\'envoyer le message')
 
     const { nonce, ciphertext } = encryptMessage(plaintext, contactPubkey, stored.privkey)
     const signature = signMessage(ciphertext, stored.sig_privkey)

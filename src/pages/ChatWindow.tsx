@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { useMessageStore } from '../store/messageStore'
+import { useMessages } from '../hooks/useMessages'
 import { useContactsStore } from '../store/contactsStore'
 import { useNetworkStore } from '../store/networkStore'
 import MessageBubble from '../components/MessageBubble'
@@ -11,17 +11,12 @@ interface Props {
 }
 
 export default function ChatWindow({ contactPubkey }: Props) {
-  const { messagesByContact, loadMessages } = useMessageStore()
+  const { messages, isLoading } = useMessages(contactPubkey)
   const { contacts } = useContactsStore()
   const { status } = useNetworkStore()
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const contact = contacts.find((c) => c.pubkey === contactPubkey)
-  const messages = messagesByContact[contactPubkey] ?? []
-
-  useEffect(() => {
-    loadMessages(contactPubkey)
-  }, [contactPubkey, loadMessages])
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -48,7 +43,11 @@ export default function ChatWindow({ contactPubkey }: Props) {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
-        {messages.length === 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="w-5 h-5 border-2 border-koon-accent border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <p className="text-koon-muted text-sm">
               Aucun message. Dis bonjour à {contact?.nickname ?? 'ce contact'} !

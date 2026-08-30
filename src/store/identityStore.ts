@@ -47,6 +47,6 @@ export const useIdentityStore = create<IdentityState>((set) => ({
 
   clearIdentity: async () => {
     await window.koon.identity.clear()
-    set({ identity: null })
+    set({ identity: null, error: null })
   },
 }))

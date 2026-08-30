@@ -36,10 +36,10 @@ export async function copyToClipboard(text: string): Promise<void> {
 }
 
 /**
- * Valide basiquement une pubkey (base64 non vide, longueur ~44 chars).
+ * Validates a base64-encoded X25519 public key (32 bytes → exactly 44 base64 chars).
  */
 export function isValidPubkey(pubkey: string): boolean {
-  return /^[A-Za-z0-9+/]{40,50}={0,2}$/.test(pubkey.trim())
+  return /^[A-Za-z0-9+/]{43}={0,1}$/.test(pubkey.trim())
 }
 
 /**

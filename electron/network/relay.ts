@@ -1,5 +1,4 @@
 import { WebSocketServer, WebSocket } from 'ws'
-import { BrowserWindow } from 'electron'
 
 const DEFAULT_PORT = 8765
 let wss: WebSocketServer | null = null

@@ -1,11 +1,12 @@
-import { useEffect } from 'react'
+import { useEffect, useCallback } from 'react'
 import { useMessageStore } from '../store/messageStore'
 
 /**
- * Hook utilitaire pour charger et accéder aux messages d'un contact.
+ * Hook pour charger et accéder aux messages d'un contact.
+ * Charge automatiquement les messages au montage et quand contactPubkey change.
  */
 export function useMessages(contactPubkey: string | null) {
-  const { messagesByContact, loadMessages, sendMessage, isLoading } = useMessageStore()
+  const { messagesByContact, loadMessages, sendMessage, isContactLoading } = useMessageStore()
 
   useEffect(() => {
     if (contactPubkey) {
@@ -13,14 +14,16 @@ export function useMessages(contactPubkey: string | null) {
     }
   }, [contactPubkey, loadMessages])
 
-  const messages = contactPubkey ? (messagesByContact[contactPubkey] ?? []) : []
+  const messages: Message[] = contactPubkey ? (messagesByContact[contactPubkey] ?? []) : []
+  const isLoading = contactPubkey ? isContactLoading(contactPubkey) : false
 
-  return {
-    messages,
-    isLoading,
-    sendMessage: (text: string) => {
-      if (contactPubkey) return sendMessage(contactPubkey, text)
-      return Promise.reject(new Error('Aucun contact sélectionné'))
+  const send = useCallback(
+    (text: string) => {
+      if (!contactPubkey) return Promise.reject(new Error('Aucun contact sélectionné'))
+      return sendMessage(contactPubkey, text)
     },
-  }
+    [contactPubkey, sendMessage]
+  )
+
+  return { messages, isLoading, sendMessage: send }
 }

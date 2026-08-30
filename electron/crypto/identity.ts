@@ -1,5 +1,4 @@
 import * as bip39 from 'bip39'
-import { x25519 } from '@noble/curves/ed25519'
 import nacl from 'tweetnacl'
 import { encodeBase64, decodeBase64 } from 'tweetnacl-util'
 import crypto from 'crypto'
@@ -21,22 +20,22 @@ export function deriveIdentityFromMnemonic(mnemonic: string): Identity {
     throw new Error('Mnémonique BIP39 invalide')
   }
 
-  // Seed 64 octets (PBKDF2 interne à bip39)
+  // Seed 64 bytes (PBKDF2 internal to bip39)
   const seedBuffer = bip39.mnemonicToSeedSync(mnemonic)
 
-  // X25519 : utilise les 32 premiers octets
-  const dhSeed = seedBuffer.slice(0, 32)
-  const dhPriv = dhSeed
-  const dhPub = x25519.getPublicKey(dhPriv)
+  // X25519: use first 32 bytes as private key
+  // nacl.box uses X25519 internally and derives the public key from the private key
+  const dhPriv = seedBuffer.slice(0, 32)
+  const dhKeyPair = nacl.box.keyPair.fromSecretKey(dhPriv)
 
-  // Ed25519 : utilise les 32 octets suivants
+  // Ed25519: use next 32 bytes
   const edSeed = seedBuffer.slice(32, 64)
   const edKeyPair = nacl.sign.keyPair.fromSeed(edSeed)
 
   return {
     mnemonic,
-    pubkey: encodeBase64(dhPub),
-    privkey: encodeBase64(dhPriv),
+    pubkey: encodeBase64(dhKeyPair.publicKey),
+    privkey: encodeBase64(dhKeyPair.secretKey),
     sigPubkey: encodeBase64(edKeyPair.publicKey),
     sigPrivkey: encodeBase64(edKeyPair.secretKey),
   }
@@ -122,9 +121,12 @@ export function verifySignature(
 }
 
 /**
- * Hache une pubkey pour obtenir un identifiant court lisible.
+ * Short display hash from a pubkey — kept for potential future use.
+ * @internal
  */
-export function shortId(pubkeyB64: string): string {
+function _shortId(pubkeyB64: string): string {
   const hash = crypto.createHash('sha256').update(pubkeyB64).digest('hex')
   return hash.slice(0, 12).toUpperCase()
 }
+// suppress unused warning — available for debug tooling
+void _shortId

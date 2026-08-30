@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron'
 
 contextBridge.exposeInMainWorld('koon', {
   // Window controls
@@ -28,8 +28,9 @@ contextBridge.exposeInMainWorld('koon', {
     list: (contactPubkey: string) => ipcRenderer.invoke('messages:list', contactPubkey),
     send: (contactPubkey: string, plaintext: string) => ipcRenderer.invoke('messages:send', contactPubkey, plaintext),
     onReceive: (cb: (msg: unknown) => void) => {
-      ipcRenderer.on('message:received', (_e, msg) => cb(msg))
-      return () => ipcRenderer.removeAllListeners('message:received')
+      const listener = (_e: IpcRendererEvent, msg: unknown) => cb(msg)
+      ipcRenderer.on('message:received', listener)
+      return () => ipcRenderer.off('message:received', listener)
     },
   },
 
@@ -38,8 +39,9 @@ contextBridge.exposeInMainWorld('koon', {
     getStatus: () => ipcRenderer.invoke('network:status'),
     connect: (relayUrl: string) => ipcRenderer.invoke('network:connect', relayUrl),
     onStatusChange: (cb: (status: string) => void) => {
-      ipcRenderer.on('network:statusChanged', (_e, s) => cb(s))
-      return () => ipcRenderer.removeAllListeners('network:statusChanged')
+      const listener = (_e: IpcRendererEvent, s: string) => cb(s)
+      ipcRenderer.on('network:statusChanged', listener)
+      return () => ipcRenderer.off('network:statusChanged', listener)
     },
   },
 })

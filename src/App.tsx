@@ -19,7 +19,7 @@ export default function App() {
   // Écouter les événements réseau
   useEffect(() => {
     const offStatus = window.koon.network.onStatusChange((s) => setStatus(s as 'connected' | 'disconnected' | 'connecting'))
-    const offMsg = window.koon.messages.onReceive((msg) => receiveMessage(msg as any))
+    const offMsg = window.koon.messages.onReceive((msg) => receiveMessage(msg as Message))
     return () => {
       offStatus()
       offMsg()

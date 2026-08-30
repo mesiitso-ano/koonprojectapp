@@ -28,20 +28,15 @@ export function saveMessage(
   ciphertext: string | null = null
 ): Message {
   const db = getDb()
-  const result = db.prepare(`
+  const stmt = db.prepare(`
     INSERT INTO messages (contact_pubkey, direction, plaintext, nonce, ciphertext)
     VALUES (@contactPubkey, @direction, @plaintext, @nonce, @ciphertext)
-  `).run({ contactPubkey, direction, plaintext, nonce, ciphertext })
+  `)
+  const result = stmt.run({ contactPubkey, direction, plaintext, nonce, ciphertext })
 
-  return {
-    id: result.lastInsertRowid as number,
-    contact_pubkey: contactPubkey,
-    direction,
-    plaintext,
-    nonce,
-    ciphertext,
-    timestamp: Math.floor(Date.now() / 1000),
-  }
+  // Re-fetch the row to get the exact SQLite-generated timestamp
+  const row = db.prepare('SELECT * FROM messages WHERE id = ?').get(result.lastInsertRowid) as Message
+  return row
 }
 
 export function deleteMessagesForContact(contactPubkey: string): void {

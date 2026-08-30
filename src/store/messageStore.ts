@@ -1,25 +1,40 @@
 import { create } from 'zustand'
 
 interface MessageState {
-  // messages par contact_pubkey
+  // messages indexed by contact_pubkey
   messagesByContact: Record<string, Message[]>
-  isLoading: boolean
+  // loading state per contact
+  loadingByContact: Record<string, boolean>
   loadMessages: (contactPubkey: string) => Promise<void>
   sendMessage: (contactPubkey: string, plaintext: string) => Promise<void>
   receiveMessage: (msg: Message) => void
+  isContactLoading: (contactPubkey: string) => boolean
 }
 
 export const useMessageStore = create<MessageState>((set, get) => ({
   messagesByContact: {},
-  isLoading: false,
+  loadingByContact: {},
+
+  isContactLoading: (contactPubkey: string) => {
+    return get().loadingByContact[contactPubkey] ?? false
+  },
 
   loadMessages: async (contactPubkey: string) => {
-    set({ isLoading: true })
-    const msgs = await window.koon.messages.list(contactPubkey)
     set((state) => ({
-      messagesByContact: { ...state.messagesByContact, [contactPubkey]: msgs },
-      isLoading: false,
+      loadingByContact: { ...state.loadingByContact, [contactPubkey]: true },
     }))
+    try {
+      const msgs = await window.koon.messages.list(contactPubkey)
+      set((state) => ({
+        messagesByContact: { ...state.messagesByContact, [contactPubkey]: msgs },
+        loadingByContact: { ...state.loadingByContact, [contactPubkey]: false },
+      }))
+    } catch (err) {
+      set((state) => ({
+        loadingByContact: { ...state.loadingByContact, [contactPubkey]: false },
+      }))
+      throw err
+    }
   },
 
   sendMessage: async (contactPubkey: string, plaintext: string) => {
@@ -38,7 +53,7 @@ export const useMessageStore = create<MessageState>((set, get) => ({
   receiveMessage: (msg: Message) => {
     set((state) => {
       const prev = state.messagesByContact[msg.contact_pubkey] ?? []
-      // Évite les doublons
+      // Deduplicate by id
       if (prev.find((m) => m.id === msg.id)) return state
       return {
         messagesByContact: {

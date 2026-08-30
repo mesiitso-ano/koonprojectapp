@@ -9,18 +9,56 @@ let currentPubkey: string | null = null
 let currentPrivkey: string | null = null
 let relayUrl = 'ws://localhost:8765'
 let status: 'disconnected' | 'connecting' | 'connected' = 'disconnected'
+let reconnectTimer: ReturnType<typeof setTimeout> | null = null
+let reconnectAttempts = 0
+const MAX_RECONNECT_ATTEMPTS = 10
+const BASE_RECONNECT_DELAY_MS = 2000
 
 function notifyRenderer(event: string, payload: unknown): void {
   const wins = BrowserWindow.getAllWindows()
-  wins.forEach(w => w.webContents.send(event, payload))
+  wins.forEach(w => {
+    if (!w.isDestroyed()) w.webContents.send(event, payload)
+  })
+}
+
+function scheduleReconnect(): void {
+  if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+    console.warn('[Client] Max reconnect attempts reached, giving up.')
+    return
+  }
+  if (!currentPubkey || !currentPrivkey) return
+
+  // Exponential backoff: 2s, 4s, 8s … capped at 30s
+  const delay = Math.min(BASE_RECONNECT_DELAY_MS * 2 ** reconnectAttempts, 30_000)
+  reconnectAttempts++
+  console.log(`[Client] Reconnecting in ${delay}ms (attempt ${reconnectAttempts})`)
+
+  reconnectTimer = setTimeout(() => {
+    reconnectTimer = null
+    if (currentPubkey && currentPrivkey) {
+      connectToRelay(relayUrl, currentPubkey, currentPrivkey)
+    }
+  }, delay)
+}
+
+function cancelReconnect(): void {
+  if (reconnectTimer !== null) {
+    clearTimeout(reconnectTimer)
+    reconnectTimer = null
+  }
 }
 
 export function connectToRelay(url: string, pubkey: string, privkey: string): void {
+  // Cancel any pending reconnect before opening a new connection
+  cancelReconnect()
+
   relayUrl = url
   currentPubkey = pubkey
   currentPrivkey = privkey
 
   if (ws) {
+    // Remove listeners to prevent the close handler from scheduling a reconnect
+    ws.removeAllListeners()
     ws.close()
     ws = null
   }
@@ -31,6 +69,7 @@ export function connectToRelay(url: string, pubkey: string, privkey: string): vo
   ws = new WebSocket(url)
 
   ws.on('open', () => {
+    reconnectAttempts = 0
     ws!.send(JSON.stringify({ type: 'register', pubkey }))
     status = 'connected'
     notifyRenderer('network:statusChanged', status)
@@ -43,37 +82,32 @@ export function connectToRelay(url: string, pubkey: string, privkey: string): vo
       if (msg.type === 'message') {
         const { from, nonce, ciphertext, sigPubkey, signature } = msg
 
-        // Vérifie la signature sur le ciphertext
+        // Verify Ed25519 signature on the ciphertext
         const valid = verifySignature(ciphertext, signature, sigPubkey)
         if (!valid) {
-          console.warn('[Client] Signature invalide pour message de', from)
+          console.warn('[Client] Invalid signature for message from', from)
           return
         }
 
-        // Déchiffre
+        // Decrypt
         const plaintext = decryptMessage(ciphertext, nonce, from, currentPrivkey!)
 
-        // Sauvegarde
+        // Only persist messages from known contacts
         const contact = getContact(from)
         if (contact) {
           const saved = saveMessage(from, 'in', plaintext, nonce, ciphertext)
-          notifyRenderer('message:received', { ...saved, contact_pubkey: from })
+          notifyRenderer('message:received', saved)
         }
       }
     } catch (err) {
-      console.error('[Client] Erreur traitement message:', err)
+      console.error('[Client] Error processing message:', err)
     }
   })
 
   ws.on('close', () => {
     status = 'disconnected'
     notifyRenderer('network:statusChanged', status)
-    // Reconnexion auto après 5s
-    setTimeout(() => {
-      if (currentPubkey && currentPrivkey) {
-        connectToRelay(relayUrl, currentPubkey, currentPrivkey)
-      }
-    }, 5000)
+    scheduleReconnect()
   })
 
   ws.on('error', (err) => {
@@ -90,7 +124,7 @@ export function sendEncryptedMessage(
   signature: string
 ): void {
   if (!ws || ws.readyState !== WebSocket.OPEN) {
-    throw new Error('Non connecté au relay')
+    throw new Error('Not connected to relay')
   }
   ws.send(JSON.stringify({ type: 'message', to, from, nonce, ciphertext, sigPubkey, signature }))
 }
@@ -100,8 +134,13 @@ export function getNetworkStatus(): string {
 }
 
 export function disconnectFromRelay(): void {
-  ws?.close()
-  ws = null
+  cancelReconnect()
+  if (ws) {
+    ws.removeAllListeners()
+    ws.close()
+    ws = null
+  }
   currentPubkey = null
   currentPrivkey = null
+  status = 'disconnected'
 }
