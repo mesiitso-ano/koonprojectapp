@@ -1,6 +1,6 @@
 @echo off
 cd /d C:\Users\DOM\Desktop\koon
 git add -A
-git commit -m "feat: tasks 1-4 section-publicites — DB migrations, adsRepo, IPC handlers, preload, types"
+git commit -m "feat: section-publicites complete v1.1.0 — stores, composants, integration, snooze"
 git push origin main
 echo EXIT_CODE=%ERRORLEVEL%

@@ -6,7 +6,14 @@ import AddContactModal from './AddContactModal'
 import IdentityPanel from './IdentityPanel'
 import { cn } from '../lib/utils'
 
-export default function Sidebar() {
+type ActiveTab = 'chat' | 'ads'
+
+interface Props {
+  activeTab: ActiveTab
+  onTabChange: (tab: ActiveTab) => void
+}
+
+export default function Sidebar({ activeTab, onTabChange }: Props) {
   const { contacts, selectedPubkey, loadContacts, selectContact, removeContact } = useContactsStore()
   const { identity } = useIdentityStore()
   const [showAdd, setShowAdd] = useState(false)
@@ -27,45 +34,82 @@ export default function Sidebar() {
 
   return (
     <div className="flex flex-col w-72 bg-koon-surface border-r border-koon-border h-full">
-      {/* Header */}
-      <div className="px-4 py-3 border-b border-koon-border">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-koon-text">Contacts</h2>
-          <button
-            onClick={() => setShowAdd(true)}
-            className="w-7 h-7 flex items-center justify-center rounded bg-koon-accent hover:bg-koon-accent-hover text-white transition-colors"
-            title="Ajouter un contact"
-            aria-label="Ajouter un contact"
-          >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M6 1v10M1 6h10" />
-            </svg>
-          </button>
-        </div>
+      {/* Tab switcher */}
+      <div className="flex border-b border-koon-border shrink-0">
+        <TabBtn
+          active={activeTab === 'chat'}
+          onClick={() => onTabChange('chat')}
+          aria-label="Messagerie"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          Messages
+        </TabBtn>
+        <TabBtn
+          active={activeTab === 'ads'}
+          onClick={() => onTabChange('ads')}
+          aria-label="Publicités"
+        >
+          {/* Megaphone icon */}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M3 11l19-9-9 19-2-8-8-2z"/>
+          </svg>
+          Publicités
+        </TabBtn>
       </div>
 
-      {/* Contact list */}
-      <div className="flex-1 overflow-y-auto py-1">
-        {contacts.length === 0 ? (
-          <div className="text-center text-koon-muted text-xs py-8 px-4">
-            <p>Aucun contact.</p>
-            <p className="mt-1">Ajoute une pubkey pour commencer.</p>
+      {/* Chat tab — header + contacts */}
+      {activeTab === 'chat' && (
+        <>
+          <div className="px-4 py-3 border-b border-koon-border shrink-0">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-koon-text">Contacts</h2>
+              <button
+                onClick={() => setShowAdd(true)}
+                className="w-7 h-7 flex items-center justify-center rounded bg-koon-accent hover:bg-koon-accent-hover text-white transition-colors"
+                aria-label="Ajouter un contact"
+              >
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M6 1v10M1 6h10" />
+                </svg>
+              </button>
+            </div>
           </div>
-        ) : (
-          contacts.map((contact) => (
-            <ContactItem
-              key={contact.pubkey}
-              contact={contact}
-              selected={selectedPubkey === contact.pubkey}
-              onSelect={() => selectContact(contact.pubkey)}
-              onRemove={() => removeContact(contact.pubkey)}
-            />
-          ))
-        )}
-      </div>
+          <div className="flex-1 overflow-y-auto py-1">
+            {contacts.length === 0 ? (
+              <div className="text-center text-koon-muted text-xs py-8 px-4">
+                <p>Aucun contact.</p>
+                <p className="mt-1">Ajoute une pubkey pour commencer.</p>
+              </div>
+            ) : (
+              contacts.map((contact) => (
+                <ContactItem
+                  key={contact.pubkey}
+                  contact={contact}
+                  selected={selectedPubkey === contact.pubkey}
+                  onSelect={() => selectContact(contact.pubkey)}
+                  onRemove={() => removeContact(contact.pubkey)}
+                />
+              ))
+            )}
+          </div>
+        </>
+      )}
 
-      {/* Identity footer */}
-      <div className="border-t border-koon-border p-3">
+      {/* Ads tab — mini info */}
+      {activeTab === 'ads' && (
+        <div className="flex-1 flex flex-col items-center justify-center px-4 text-center">
+          <div className="text-4xl mb-3">📣</div>
+          <p className="text-sm font-semibold text-koon-text mb-1">Section Publicités</p>
+          <p className="text-xs text-koon-muted leading-relaxed">
+            Découvre les annonces, suis des entreprises et interagis avec les offres.
+          </p>
+        </div>
+      )}
+
+      {/* Identity footer — always visible */}
+      <div className="border-t border-koon-border p-3 shrink-0">
         <button
           onClick={() => setShowIdentity(true)}
           className="w-full text-left"
@@ -95,19 +139,34 @@ export default function Sidebar() {
   )
 }
 
-function ContactItem({
-  contact,
-  selected,
-  onSelect,
-  onRemove,
-}: {
-  contact: Contact
-  selected: boolean
-  onSelect: () => void
-  onRemove: () => void
+function TabBtn({ active, onClick, children, 'aria-label': ariaLabel }: {
+  active: boolean
+  onClick: () => void
+  children: React.ReactNode
+  'aria-label': string
 }) {
-  const [showMenu, setShowMenu] = useState(false)
+  return (
+    <button
+      onClick={onClick}
+      aria-label={ariaLabel}
+      aria-pressed={active}
+      className={cn(
+        'flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-medium transition-colors border-b-2',
+        active
+          ? 'text-koon-accent border-koon-accent bg-koon-accent/5'
+          : 'text-koon-muted border-transparent hover:text-koon-text hover:bg-koon-border/40'
+      )}
+    >
+      {children}
+    </button>
+  )
+}
 
+function ContactItem({
+  contact, selected, onSelect, onRemove,
+}: {
+  contact: Contact; selected: boolean; onSelect: () => void; onRemove: () => void
+}) {
   return (
     <div
       className={cn(

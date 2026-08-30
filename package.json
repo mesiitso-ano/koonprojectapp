@@ -1,13 +1,14 @@
 {
   "name": "koon",
-  "version": "1.0.0",
-  "description": "Koon — chat desktop chiffre E2E avec seed phrase BIP39",
+  "version": "1.1.0",
+  "description": "Koon — chat desktop chiffré E2E avec seed phrase BIP39 + section publicités",
   "main": "dist-electron/main.js",
   "author": "Koon",
   "license": "MIT",
   "scripts": {
     "dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
     "build": "tsc -p tsconfig.electron.json && tsc --noEmit && vite build && electron-builder",
+    "build:win": "tsc -p tsconfig.electron.json && vite build && electron-builder --win",
     "build:electron": "tsc -p tsconfig.electron.json",
     "build:renderer": "vite build"
   },
@@ -44,7 +45,7 @@
     "productName": "Koon",
     "directories": { "output": "release" },
     "files": ["dist/**/*", "dist-electron/**/*", "assets/**/*"],
-    "win": { "target": "nsis", "icon": "assets/icon.png" },
-    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true }
+    "win": { "target": [{ "target": "nsis", "arch": ["x64"] }], "icon": "assets/icon.png" },
+    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true, "createDesktopShortcut": true, "createStartMenuShortcut": true }
   }
 }
