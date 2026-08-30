@@ -14,9 +14,42 @@ import {
   getNetworkStatus,
 } from '../network/client'
 import { getRelayUrl } from '../network/relay'
+import {
+  listAds,
+  createAd,
+  getAdDetail,
+  upsertInteraction,
+  recordHistory,
+  getUserInteractions,
+  addComment,
+  getComments,
+  requestEnterprise,
+  getEnterpriseProfile,
+  listEnterprises,
+  followEnterprise,
+  unfollowEnterprise,
+  getFollowedPubkeys,
+  getAdsSettings,
+  saveAdsSettings,
+  scheduleSnoozedAd,
+  clearHistory,
+  type AdsListParams,
+  type AdCreatePayload,
+  type AdInteractPayload,
+  type AdCommentPayload,
+  type EnterpriseRequestPayload,
+  type AdsSettings,
+} from '../db/adsRepo'
+
+// Helper — get current user pubkey from DB (never trust the renderer)
+function getCurrentPubkey(): string | null {
+  const stored = loadIdentity()
+  return stored?.pubkey ?? null
+}
 
 export function setupIpcHandlers(ipcMain: IpcMain): void {
-  // ── Identity ──────────────────────────────────────────────
+
+  // ── Identity ──────────────────────────────────────────────────────────────
   ipcMain.handle('identity:generate', () => {
     const identity = generateIdentity()
     saveIdentity(identity)
@@ -34,7 +67,6 @@ export function setupIpcHandlers(ipcMain: IpcMain): void {
   ipcMain.handle('identity:getCurrent', () => {
     const stored = loadIdentity()
     if (!stored) return null
-    // Auto-connect on startup
     connectToRelay(getRelayUrl(), stored.pubkey, stored.privkey)
     return { pubkey: stored.pubkey, sigPubkey: stored.sig_pubkey, mnemonic: stored.mnemonic }
   })
@@ -44,7 +76,7 @@ export function setupIpcHandlers(ipcMain: IpcMain): void {
     return true
   })
 
-  // ── Contacts ──────────────────────────────────────────────
+  // ── Contacts ──────────────────────────────────────────────────────────────
   ipcMain.handle('contacts:list', () => listContacts())
 
   ipcMain.handle('contacts:add', (_e, pubkey: string, nickname: string) => {
@@ -57,7 +89,7 @@ export function setupIpcHandlers(ipcMain: IpcMain): void {
     return listContacts()
   })
 
-  // ── Messages ──────────────────────────────────────────────
+  // ── Messages ──────────────────────────────────────────────────────────────
   ipcMain.handle('messages:list', (_e, contactPubkey: string) => {
     return listMessages(contactPubkey)
   })
@@ -84,7 +116,7 @@ export function setupIpcHandlers(ipcMain: IpcMain): void {
     return saveMessage(contactPubkey, 'out', plaintext, nonce, ciphertext)
   })
 
-  // ── Network ───────────────────────────────────────────────
+  // ── Network ───────────────────────────────────────────────────────────────
   ipcMain.handle('network:status', () => getNetworkStatus())
 
   ipcMain.handle('network:connect', (_e, relayUrl: string) => {
@@ -92,5 +124,112 @@ export function setupIpcHandlers(ipcMain: IpcMain): void {
     if (!stored) throw new Error('Identité non chargée')
     connectToRelay(relayUrl, stored.pubkey, stored.privkey)
     return true
+  })
+
+  // ── Ads — Annonces ────────────────────────────────────────────────────────
+  ipcMain.handle('ads:list', (_e, params: AdsListParams) => {
+    const userPubkey = getCurrentPubkey()
+    return listAds({ ...params, userPubkey: userPubkey ?? undefined })
+  })
+
+  ipcMain.handle('ads:create', (_e, payload: AdCreatePayload) => {
+    const userPubkey = getCurrentPubkey()
+    if (!userPubkey) throw new Error('Identité non chargée')
+    const id = createAd({ ...payload, author_pubkey: userPubkey })
+    return { id }
+  })
+
+  ipcMain.handle('ads:getDetail', (_e, { id }: { id: string }) => {
+    const userPubkey = getCurrentPubkey()
+    const ad = getAdDetail(id)
+    if (!ad) return null
+    // Auto-record history view
+    if (userPubkey) recordHistory(id, userPubkey)
+    const userInteractions = userPubkey ? getUserInteractions(id, userPubkey) : []
+    const enterprise = getEnterpriseProfile(ad.author_pubkey)
+    return { ...ad, userInteractions, enterprise }
+  })
+
+  ipcMain.handle('ads:interact', (_e, payload: AdInteractPayload) => {
+    const userPubkey = getCurrentPubkey()
+    if (!userPubkey) throw new Error('Identité non chargée')
+    upsertInteraction(payload, userPubkey)
+    return { success: true }
+  })
+
+  ipcMain.handle('ads:snooze', (_e, { adId, scheduledAt }: { adId: string; scheduledAt: number }) => {
+    const userPubkey = getCurrentPubkey()
+    if (!userPubkey) throw new Error('Identité non chargée')
+    scheduleSnoozedAd(adId, userPubkey, scheduledAt)
+    return { success: true }
+  })
+
+  ipcMain.handle('ads:comment', (_e, payload: AdCommentPayload) => {
+    const userPubkey = getCurrentPubkey()
+    if (!userPubkey) throw new Error('Identité non chargée')
+    return addComment(payload, userPubkey)
+  })
+
+  ipcMain.handle('ads:getComments', (_e, { adId, limit = 20, offset = 0 }: {
+    adId: string; limit?: number; offset?: number
+  }) => {
+    return getComments(adId, limit, offset)
+  })
+
+  ipcMain.handle('ads:clearHistory', () => {
+    const userPubkey = getCurrentPubkey()
+    if (!userPubkey) throw new Error('Identité non chargée')
+    clearHistory(userPubkey)
+    return { success: true }
+  })
+
+  // ── Enterprise ────────────────────────────────────────────────────────────
+  ipcMain.handle('enterprise:request', (_e, payload: EnterpriseRequestPayload) => {
+    const userPubkey = getCurrentPubkey()
+    if (!userPubkey) throw new Error('Identité non chargée')
+    const status = requestEnterprise(payload, userPubkey)
+    return { status }
+  })
+
+  ipcMain.handle('enterprise:getProfile', (_e, { pubkey }: { pubkey: string }) => {
+    return getEnterpriseProfile(pubkey)
+  })
+
+  ipcMain.handle('enterprise:list', () => {
+    return listEnterprises()
+  })
+
+  ipcMain.handle('enterprise:follow', (_e, { enterprisePubkey }: { enterprisePubkey: string }) => {
+    const userPubkey = getCurrentPubkey()
+    if (!userPubkey) throw new Error('Identité non chargée')
+    followEnterprise(userPubkey, enterprisePubkey)
+    return { followed: getFollowedPubkeys(userPubkey) }
+  })
+
+  ipcMain.handle('enterprise:unfollow', (_e, { enterprisePubkey }: { enterprisePubkey: string }) => {
+    const userPubkey = getCurrentPubkey()
+    if (!userPubkey) throw new Error('Identité non chargée')
+    unfollowEnterprise(userPubkey, enterprisePubkey)
+    return { followed: getFollowedPubkeys(userPubkey) }
+  })
+
+  ipcMain.handle('enterprise:getFollowed', () => {
+    const userPubkey = getCurrentPubkey()
+    if (!userPubkey) return []
+    return getFollowedPubkeys(userPubkey)
+  })
+
+  // ── Ads Settings ──────────────────────────────────────────────────────────
+  ipcMain.handle('ads:getSettings', () => {
+    const userPubkey = getCurrentPubkey()
+    if (!userPubkey) throw new Error('Identité non chargée')
+    return getAdsSettings(userPubkey)
+  })
+
+  ipcMain.handle('ads:saveSettings', (_e, settings: Partial<AdsSettings>) => {
+    const userPubkey = getCurrentPubkey()
+    if (!userPubkey) throw new Error('Identité non chargée')
+    saveAdsSettings(userPubkey, settings)
+    return { success: true }
   })
 }
