@@ -1,0 +1,4 @@
+# Fichiers à ignorer lors du bundle Tauri
+target/
+*.log
+.git/

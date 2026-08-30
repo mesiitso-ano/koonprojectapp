@@ -1,50 +1,36 @@
+/* Styles globaux de base + Tailwind CSS */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+@layer base {
+  * {
+    @apply box-border;
+  }
 
-html, body, #root {
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-}
+  body {
+    @apply m-0 p-0 font-sans antialiased;
+    @apply bg-koon-950 text-white;
+  }
 
-body {
-  background-color: #0d0d0d;
-  color: #e5e7eb;
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  -webkit-font-smoothing: antialiased;
-}
+  #root {
+    @apply w-full h-screen;
+  }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #2a2a2a;
-  border-radius: 2px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #3a3a3a;
-}
+  /* Scrollbar personnalisée */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
 
-/* Selection */
-::selection {
-  background: #7c3aed44;
-}
+  ::-webkit-scrollbar-track {
+    @apply bg-koon-900;
+  }
 
-/* Drag region for frameless window */
-.titlebar-drag {
-  -webkit-app-region: drag;
-}
-.titlebar-no-drag {
-  -webkit-app-region: no-drag;
+  ::-webkit-scrollbar-thumb {
+    @apply bg-koon-700 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-koon-600;
+  }
 }

@@ -1,0 +1,6 @@
+@echo off
+echo Installation des dépendances...
+call npm.cmd install
+echo.
+echo Lancement de Koon en mode développement...
+call npm.cmd run tauri dev

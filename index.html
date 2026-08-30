@@ -1,15 +1,21 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
+    <!-- Empêche le zoom tactile involontaire -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' ws://localhost:*;" />
-    <title>Koon — Chat E2E</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <!-- Titre de la fenêtre native Windows -->
+    <title>Koon</title>
+    <!-- Désactive le drag natif des images (comportement non désiré dans une app desktop) -->
+    <style>
+      * { -webkit-user-drag: none; }
+      img { pointer-events: none; }
+    </style>
   </head>
   <body>
+    <!-- Point de montage React : toute l'UI est injectée ici par main.tsx -->
     <div id="root"></div>
+    <!-- Entry point du bundle React généré par Vite -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -1,103 +1,93 @@
-import { useState } from 'react'
-import { useContactsStore } from '../store/contactsStore'
-import { isValidPubkey } from '../lib/utils'
+// Modal pour ajouter un nouveau contact
+import { useState } from "react";
+import { useAppStore } from "../store/appStore";
 
 interface Props {
-  onClose: () => void
+  onClose: () => void;
 }
 
 export default function AddContactModal({ onClose }: Props) {
-  const { addContact } = useContactsStore()
-  const [pubkey, setPubkey] = useState('')
-  const [nickname, setNickname] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const { addContact } = useAppStore();
+  const [name, setName] = useState("");
+  const [publicKey, setPublicKey] = useState("");
+  const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    const trimmedPubkey = pubkey.trim()
-    const trimmedNick = nickname.trim()
-
-    if (!trimmedNick) {
-      setError('Le surnom est requis.')
-      return
+  const handleAdd = () => {
+    if (!name.trim()) {
+      setError("Le nom est requis");
+      return;
     }
-    if (!isValidPubkey(trimmedPubkey)) {
-      setError('Pubkey invalide. Vérifie qu\'elle est au format base64.')
-      return
+    if (!publicKey.trim() || publicKey.length !== 64) {
+      setError("Clé publique invalide (64 caractères hex attendus)");
+      return;
     }
 
-    setLoading(true)
-    try {
-      await addContact(trimmedPubkey, trimmedNick)
-      onClose()
-    } catch (e) {
-      setError(String(e))
-    } finally {
-      setLoading(false)
-    }
-  }
+    addContact({
+      id: crypto.randomUUID(),
+      name: name.trim(),
+      publicKey: publicKey.trim(),
+      unreadCount: 0,
+    });
+    onClose();
+  };
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={onClose}>
-      <div
-        className="bg-koon-surface border border-koon-border rounded-lg p-6 w-full max-w-md mx-4"
-        onClick={(e) => e.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Ajouter un contact"
-      >
-        <h2 className="text-lg font-semibold text-koon-text mb-4">Ajouter un contact</h2>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fadeIn">
+      <div className="w-full max-w-md bg-koon-900 rounded-2xl p-6 space-y-4 border border-koon-700 mx-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-bold">Ajouter un contact</h3>
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-koon-800 rounded-lg transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="nickname" className="block text-sm text-koon-muted mb-1">Surnom</label>
-            <input
-              id="nickname"
-              type="text"
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              placeholder="Alice"
-              className="w-full bg-koon-bg border border-koon-border rounded px-3 py-2 text-sm text-koon-text placeholder-koon-muted focus:outline-none focus:border-koon-accent"
-              autoFocus
-            />
-          </div>
+        <div>
+          <label className="block text-sm text-koon-muted mb-2">
+            Nom du contact
+          </label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+              setError("");
+            }}
+            placeholder="Alice"
+            className="w-full px-4 py-3 bg-koon-950 border border-koon-700 rounded-lg focus:border-koon-accent focus:outline-none"
+          />
+        </div>
 
-          <div>
-            <label htmlFor="pubkey" className="block text-sm text-koon-muted mb-1">Clé publique (base64)</label>
-            <textarea
-              id="pubkey"
-              value={pubkey}
-              onChange={(e) => setPubkey(e.target.value)}
-              placeholder="Colle la pubkey X25519 de ton contact ici..."
-              rows={3}
-              className="w-full bg-koon-bg border border-koon-border rounded px-3 py-2 text-sm text-koon-text placeholder-koon-muted focus:outline-none focus:border-koon-accent font-mono resize-none"
-            />
-          </div>
+        <div>
+          <label className="block text-sm text-koon-muted mb-2">
+            Clé publique (hex)
+          </label>
+          <textarea
+            value={publicKey}
+            onChange={(e) => {
+              setPublicKey(e.target.value);
+              setError("");
+            }}
+            placeholder="a1b2c3d4..."
+            className="w-full h-24 px-4 py-3 bg-koon-950 border border-koon-700 rounded-lg focus:border-koon-accent focus:outline-none font-mono text-sm resize-none"
+          />
+        </div>
 
-          {error && (
-            <p className="text-koon-danger text-xs">{error}</p>
-          )}
+        {error && (
+          <p className="text-sm text-koon-danger">{error}</p>
+        )}
 
-          <div className="flex gap-3 justify-end">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-sm text-koon-muted hover:text-koon-text transition-colors"
-            >
-              Annuler
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2 text-sm bg-koon-accent hover:bg-koon-accent-hover text-white rounded transition-colors disabled:opacity-50"
-            >
-              {loading ? 'Ajout...' : 'Ajouter'}
-            </button>
-          </div>
-        </form>
+        <button
+          onClick={handleAdd}
+          className="w-full py-3 px-4 bg-koon-accent hover:bg-koon-accent2 rounded-lg font-medium transition-colors"
+        >
+          Ajouter
+        </button>
       </div>
     </div>
-  )
+  );
 }

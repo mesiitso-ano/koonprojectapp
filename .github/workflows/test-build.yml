@@ -1,0 +1,50 @@
+name: Test Build (Debug rapide)
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-build:
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo
+            node_modules
+            src-tauri/target
+          key: ${{ runner.os }}-test-${{ hashFiles('**/Cargo.lock', '**/package-lock.json') }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: TypeScript check
+        run: npx tsc --noEmit
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Build Tauri (debug)
+        run: npm run tauri build -- --debug
+
+      - name: Upload debug artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: koon-debug
+          path: src-tauri/target/debug/koon.exe

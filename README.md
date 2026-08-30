@@ -1,105 +1,65 @@
-# Koon — Chat Desktop E2E Chiffré
+# Koon — Messagerie Chiffrée
 
-Application de messagerie desktop avec chiffrement bout-en-bout, basée sur Electron + React + TypeScript.
+Application de messagerie sécurisée construite avec **Tauri 2.0** + **React** + **TypeScript**.
 
-## Fonctionnalités
+## 🔐 Fonctionnalités
 
-- 🔑 **Identité BIP39** — Génération ou import de seed phrase 12/24 mots
-- 🔐 **Chiffrement X25519 + NaCl box** — Diffie-Hellman + XSalsa20-Poly1305
-- ✍️ **Signatures Ed25519** — Chaque message est signé
-- 💾 **SQLite local** — Historique chiffré stocké sur l'appareil
-- 🌐 **Relay WebSocket local** — Communication peer-to-peer via relay intégré
-- 🖥️ **Interface moderne** — Fenêtre sans cadre, thème sombre, Tailwind CSS
+- **Chiffrement de bout en bout** via NaCl (TweetNaCl)
+- **Génération de wallet BIP39** (phrase mnémonique de 24 mots)
+- **Base de données SQLite locale** pour la persistance
+- **Interface moderne** avec Tailwind CSS
+- **Cross-platform** grâce à Tauri (Windows, macOS, Linux)
 
-## Stack technique
+## 🚀 Développement
 
-| Couche | Technologie |
-|--------|------------|
-| Desktop | Electron 30 |
-| UI | React 18 + TypeScript |
-| Styles | Tailwind CSS 3 |
-| Crypto | @noble/curves + tweetnacl + bip39 |
-| DB | better-sqlite3 |
-| Network | ws (WebSocket) |
-| Build | Vite 5 |
+### Prérequis
 
-## Installation
+- Node.js 18+
+- Rust 1.70+
+- Pour Windows : Visual Studio Build Tools avec C++ Desktop Development
+
+### Installation
 
 ```bash
+# Installer les dépendances Node
 npm install
-```
 
-## Développement
-
-```bash
+# Lancer en mode développement
 npm run dev
 ```
 
-Lance Vite (port 5173) et Electron en parallèle.
-
-## Build production
+### Build de production
 
 ```bash
-npm run build
+# Compiler l'application native
+npm run tauri build
 ```
 
-Génère l'installeur dans `release/`.
-
-## Architecture
+## 📁 Architecture
 
 ```
-electron/
-  main.ts          # Process principal Electron
-  preload.ts       # Bridge contextIsolation
-  crypto/
-    identity.ts    # BIP39, X25519, Ed25519, NaCl box
-  db/
-    database.ts    # Init SQLite + migrations
-    identityRepo.ts
-    contactsRepo.ts
-    messagesRepo.ts
-  ipc/
-    handlers.ts    # Handlers IPC main process
-  network/
-    relay.ts       # Serveur WebSocket relay local
-    client.ts      # Client WebSocket + déchiffrement entrant
-
-src/
-  App.tsx
-  main.tsx
-  index.css
-  components/
-    TitleBar.tsx
-    Sidebar.tsx
-    AddContactModal.tsx
-    IdentityPanel.tsx
-    MessageBubble.tsx
-    MessageInput.tsx
-    EmptyChat.tsx
-  pages/
-    SetupPage.tsx
-    ChatLayout.tsx
-    ChatWindow.tsx
-  store/
-    identityStore.ts
-    contactsStore.ts
-    messageStore.ts
-    networkStore.ts
-  lib/
-    utils.ts
-  hooks/
-    useMessages.ts
-  types/
-    global.d.ts
+koon/
+├── src/                    # Code React/TypeScript
+│   ├── components/         # Composants UI
+│   ├── pages/             # Pages principales
+│   ├── store/             # État Zustand
+│   ├── lib/               # Utilitaires crypto
+│   └── types/             # Définitions TypeScript
+├── src-tauri/             # Backend Rust
+│   └── src/
+│       ├── commands/      # Commandes Tauri
+│       ├── db/            # SQLite
+│       └── lib.rs         # Point d'entrée
+└── index.html             # Shell HTML
 ```
 
-## Sécurité
+## 🔑 Cryptographie
 
-- Les clés privées ne quittent jamais `userData` (SQLite chiffré localement)
-- `contextIsolation: true` + `nodeIntegration: false` dans Electron
-- Vérification des signatures Ed25519 à la réception de chaque message
-- Pas de serveur externe — le relay tourne en local
+- **Génération de clés** : BIP39 → Ed25519
+- **Chiffrement** : X25519 (Curve25519 ECDH)
+- **Signature** : Ed25519
+- **Bibliothèque** : TweetNaCl
 
-## Licence
+## 📝 License
 
 MIT

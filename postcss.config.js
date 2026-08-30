@@ -1,6 +1,7 @@
+// PostCSS — pipeline de transformation CSS (requis par Tailwind)
 export default {
   plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
+    tailwindcss: {},   // Génère les classes utilitaires Tailwind
+    autoprefixer: {},  // Ajoute automatiquement les préfixes vendeur CSS
   },
-}
+};
