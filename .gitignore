@@ -37,4 +37,9 @@ src-tauri/Cargo.lock
 *INSTRUCTIONS*.md
 *BUILD*.bat
 *clean.bat
-KOON*PROJECT*.html
+*.txt
+*.docx
+KOON*.html
+KOON*.files/
+*.html
+!index.html
