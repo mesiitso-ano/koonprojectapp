@@ -105,7 +105,16 @@ export const useAppStore = create<AppState>((set, get) => ({
     })),
 
   initializeApp: async () => {
+    console.log("🔍 initializeApp: Démarrage...");
+    
     try {
+      // TEMPORAIRE: Forcer SetupPage pour debug
+      console.log("⚠️ MODE DEBUG: Forçage vers SetupPage");
+      set({ currentPage: "setup" });
+      return;
+      
+      // Code original (désactivé temporairement)
+      /*
       // Vérifier si un wallet existe déjà
       const existingWallet = await invoke<Wallet | null>("load_wallet");
       if (existingWallet) {
@@ -116,8 +125,9 @@ export const useAppStore = create<AppState>((set, get) => ({
       } else {
         set({ currentPage: "setup" });
       }
+      */
     } catch (error) {
-      console.error("Erreur initialisation:", error);
+      console.error("❌ Erreur initialisation:", error);
       set({ currentPage: "setup" });
     }
   },

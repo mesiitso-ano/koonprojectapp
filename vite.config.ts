@@ -1,11 +1,19 @@
 // Configuration Vite — bundler du code React pour le renderer Tauri
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 export default defineConfig({
   plugins: [
     // Plugin React : transforme JSX/TSX en JS, active le Fast Refresh
     react(),
+    // Polyfills Node.js pour le navigateur (Buffer, process, etc.)
+    nodePolyfills({
+      include: ['buffer'],
+      globals: {
+        Buffer: true,
+      },
+    }),
   ],
 
   // Empêche Vite de masquer les erreurs Rust dans la console
