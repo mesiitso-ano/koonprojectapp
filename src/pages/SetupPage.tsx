@@ -261,9 +261,9 @@ export default function SetupPage() {
           id="BtnRetour1"
           title="BtnRetour1 - Back Button"
           onClick={signupSubStep === "validate" ? handleBackToDisplay : handleGoBack}
-          className="absolute top-8 left-8 p-3 bg-white hover:bg-gray-100 rounded-full transition-colors group z-30 shadow-lg border-2 border-gray-900"
+          className="absolute top-8 left-8 p-3 bg-gray-900 hover:bg-gray-800 rounded-full transition-colors group z-30 shadow-lg border-2 border-gray-900"
         >
-          <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
         </button>
@@ -293,7 +293,7 @@ export default function SetupPage() {
               id="BtnRestaurer1"
               title="BtnRestaurer1 - Restore Wallet Button"
               onClick={handleClickConnexion}
-              className="w-full py-3 px-4 bg-white hover:bg-gray-50 border-2 border-gray-900 text-gray-900 rounded-full font-medium transition-colors"
+              className="w-full py-3 px-4 bg-gray-900 hover:bg-gray-800 text-white rounded-full font-medium transition-colors border-2 border-gray-900"
             >
               Connexion
             </button>
@@ -316,9 +316,9 @@ export default function SetupPage() {
                   title={`Word${index + 1}`}
                   className="flex items-center gap-2 px-3 py-2 bg-white border-2 border-gray-900 rounded-full w-fit"
                 >
-                  {/* Badge numéroté */}
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-gray-900 text-white text-xs font-bold flex items-center justify-center">
-                    {index + 1}
+                  {/* Numéro simple (sans cercle) */}
+                  <span className="flex-shrink-0 text-xs font-bold text-gray-900">
+                    {index + 1}.
                   </span>
                   {/* Mot */}
                   <span className="text-sm font-medium text-gray-900 pr-2">
@@ -333,7 +333,7 @@ export default function SetupPage() {
               <div 
                 id="NotificationPush1" 
                 title="NotificationPush1 - Copy Success Notification"
-                className="fixed top-4 right-4 z-50 p-4 bg-green-600 text-white rounded-lg shadow-2xl flex items-start gap-3 animate-slideIn max-w-sm"
+                className="fixed top-4 right-4 z-50 p-4 bg-gray-900 text-white rounded-lg shadow-2xl flex items-start gap-3 animate-slideIn max-w-sm border-2 border-gray-900"
               >
                 <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -351,17 +351,13 @@ export default function SetupPage() {
               <p id="ErrorDisplay1" title="ErrorDisplay1 - Error Message" className="text-sm text-red-600">{error}</p>
             )}
             
-            {/* Boutons Copier et Suivant sur la même ligne */}
-            <div className="flex gap-3">
+            {/* Boutons Copier et Suivant sur la même ligne - centrés et descendus */}
+            <div className="flex justify-center gap-3 mt-8">
               <button
                 id="BtnCopy1"
                 title="BtnCopy1 - Copy Mnemonic Button"
                 onClick={handleCopyMnemonic}
-                className={`flex-1 py-3 px-4 rounded-full font-medium transition-colors ${
-                  copiedMnemonic
-                    ? "bg-green-600 hover:bg-green-700 text-white"
-                    : "bg-blue-600 hover:bg-blue-700 text-white"
-                }`}
+                className="py-3 px-8 rounded-full font-medium transition-colors border-2 border-gray-900 bg-gray-900 hover:bg-gray-800 text-white"
               >
                 {copiedMnemonic ? "✓ Copié" : "📋 Copier"}
               </button>
@@ -370,7 +366,7 @@ export default function SetupPage() {
                 title="BtnNext1 - Next Step Button"
                 onClick={handleNextToValidation}
                 disabled={!copiedMnemonic}
-                className="flex-1 py-3 px-4 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-full font-medium transition-colors"
+                className="py-3 px-8 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-full font-medium transition-colors border-2 border-gray-900"
               >
                 Suivant
               </button>
@@ -384,17 +380,6 @@ export default function SetupPage() {
             <p id="ValidateLabel1" title="ValidateLabel1" className="text-sm text-gray-600 mb-3">
               Entrez les 24 mots pour valider :
             </p>
-            
-            {/* Bouton Coller tous les mots */}
-            <button
-              id="BtnPasteAll1"
-              title="BtnPasteAll1 - Paste All Words Button"
-              onClick={handlePasteAllWords}
-              disabled={stepStatus === "validating"}
-              className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-full font-medium transition-colors text-sm"
-            >
-              📋 Coller les 24 mots
-            </button>
             
             {/* Grille de 24 cellules éditables - gap responsive selon contenu */}
             <div 
@@ -418,9 +403,9 @@ export default function SetupPage() {
                     }
                   }}
                 >
-                  {/* Badge numéroté */}
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-gray-900 text-white text-xs font-bold flex items-center justify-center">
-                    {index + 1}
+                  {/* Numéro simple (sans cercle) */}
+                  <span className="flex-shrink-0 text-xs font-bold text-gray-900">
+                    {index + 1}.
                   </span>
                   {/* Mot si présent */}
                   {validationWords[index] && (
@@ -435,15 +420,30 @@ export default function SetupPage() {
             {error && (
               <p id="ErrorValidate1" title="ErrorValidate1 - Validation Error" className="text-sm text-red-600">{error}</p>
             )}
-            <button
-              id="BtnValidate1"
-              title="BtnValidate1 - Validate Button"
-              onClick={handleValidateMnemonic}
-              disabled={validationWords.some(w => !w.trim()) || stepStatus === "validating"}
-              className="w-full py-3 px-4 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-full font-medium transition-colors"
-            >
-              {stepStatus === "validating" ? "Validation..." : "Valider"}
-            </button>
+            
+            {/* Boutons Valider et icône Coller - centrés et descendus */}
+            <div className="flex items-center justify-center gap-3 mt-8">
+              <button
+                id="BtnValidate1"
+                title="BtnValidate1 - Validate Button"
+                onClick={handleValidateMnemonic}
+                disabled={validationWords.some(w => !w.trim()) || stepStatus === "validating"}
+                className="py-3 px-8 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-full font-medium transition-colors border-2 border-gray-900"
+              >
+                {stepStatus === "validating" ? "Validation..." : "Valider"}
+              </button>
+              
+              {/* Icône Coller */}
+              <button
+                id="BtnPasteIcon1"
+                title="BtnPasteIcon1 - Paste Icon Button"
+                onClick={handlePasteAllWords}
+                disabled={stepStatus === "validating"}
+                className="p-3 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-full transition-colors border-2 border-gray-900"
+              >
+                📋
+              </button>
+            </div>
           </div>
         )}
 
