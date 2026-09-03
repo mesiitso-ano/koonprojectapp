@@ -3,9 +3,9 @@ import { useState, useEffect } from "react";
 import { useAppStore } from "../store/appStore";
 import { generateMnemonic, validateMnemonic } from "bip39";
 import { generateKeypairFromMnemonic } from "../lib/crypto";
-import DotPattern from "../components/DotPattern";
 import Loader from "../components/Loader";
 import StepIndicator from "../components/StepIndicator";
+import { ThanosSnapEffect } from "../components/ThanosSnapEffect";
 import { Buffer } from "buffer";
 
 // Polyfill Buffer pour bip39
@@ -32,6 +32,18 @@ export default function SetupPage() {
   
   // État pour les 24 mots de validation (tableau)
   const [validationWords, setValidationWords] = useState<string[]>(Array(24).fill(""));
+  
+  // État pour déclencher l'effet Thanos
+  const [triggerThanos, setTriggerThanos] = useState(false);
+  
+  // États Step2 (formulaire)
+  const [step2Data, setStep2Data] = useState({
+    nom: "",
+    prenom: "",
+    deuxiemePrenom: "",
+    age: "",
+    sexe: ""
+  });
   
   // États restauration
   const [restoreMnemonic, setRestoreMnemonic] = useState("");
@@ -95,6 +107,15 @@ export default function SetupPage() {
     setCurrentView("restore-flow");
     setRestoreMnemonic("");
     setError("");
+  };
+
+  // Callback après dissolution Thanos
+  const handleThanosComplete = () => {
+    // Passer au Step2
+    setCurrentStep(2);
+    setStepProgress(0);
+    setStepStatus("progress");
+    setSignupSubStep("display"); // Reset substep
   };
 
   // Retour à la page initiale
@@ -187,13 +208,15 @@ export default function SetupPage() {
         setStepStatus("success");
         setError("");
         
-        // Transition vers Step2 après 1 seconde
+        // Attendre la FIN COMPLÈTE de l'animation Step1
+        // - Check fade-in : 300ms
+        // - Couleur coule dans tige : 1500ms (démarre à t=500ms)
+        // - Step monte de 30px : 1000ms (démarre quand tige = 100%)
+        // Total: 500ms + 1500ms + 1000ms = 3000ms
         setTimeout(() => {
-          setCurrentStep(2);
-          setStepProgress(0);
-          setStepStatus("progress");
-          // TODO: Afficher formulaire Step2 (nom, prénom, etc.)
-        }, 1000);
+          console.log("🎬 Animation Step1 COMPLÈTE - Déclenchement Thanos sur TOUTE la carte");
+          setTriggerThanos(true);
+        }, 3000); // 3s après stepStatus = "success"
       } else {
         // Erreur
         setStepStatus("error");
@@ -235,8 +258,6 @@ export default function SetupPage() {
       title="Page1 - SetupPage Container"
       className="relative flex items-center justify-center w-full h-full bg-white overflow-hidden"
     >
-      {/* Pattern de points en arrière-plan */}
-      <DotPattern />
       
       {/* Step Indicator - visible uniquement pendant signup-flow */}
       {currentView === "signup-flow" && (
@@ -250,7 +271,7 @@ export default function SetupPage() {
       
       {/* Loader - affiché pendant 4 secondes */}
       {isLoading && (
-        <div className="absolute inset-0 z-30 flex items-center justify-center bg-white">
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-white/90 backdrop-blur-sm">
           <Loader />
         </div>
       )}
@@ -375,8 +396,9 @@ export default function SetupPage() {
         )}
 
         {/* FLOW INSCRIPTION - Step 1 : Validation des 24 mots */}
-        {currentView === "signup-flow" && signupSubStep === "validate" && (
-          <div id="ValidateMode1" title="ValidateMode1 - Validate Mnemonic" className="space-y-4 animate-fadeIn">
+        {currentView === "signup-flow" && signupSubStep === "validate" && currentStep === 1 && (
+          <ThanosSnapEffect triggerDissolve={triggerThanos} onDissolveComplete={handleThanosComplete}>
+            <div id="ValidateMode1" title="ValidateMode1 - Validate Mnemonic" className="space-y-4 animate-fadeIn">
             <p id="ValidateLabel1" title="ValidateLabel1" className="text-sm text-gray-600 mb-3">
               Entrez les 24 mots pour valider :
             </p>
@@ -442,6 +464,94 @@ export default function SetupPage() {
                 className="p-3 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-full transition-colors border-2 border-gray-900"
               >
                 📋
+              </button>
+            </div>
+          </div>
+          </ThanosSnapEffect>
+        )}
+
+        {/* FLOW INSCRIPTION - Step 2 : Formulaire informations personnelles */}
+        {currentView === "signup-flow" && currentStep === 2 && (
+          <div id="Step2Form1" title="Step2Form1 - Personal Info Form" className="space-y-4 animate-fadeIn">
+            <p id="Step2Label1" title="Step2Label1" className="text-sm text-gray-600 mb-3">
+              Informations personnelles :
+            </p>
+            
+            <div className="space-y-4">
+              {/* Nom */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Nom</label>
+                <input
+                  type="text"
+                  value={step2Data.nom}
+                  onChange={(e) => setStep2Data({...step2Data, nom: e.target.value})}
+                  className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-900 rounded-full focus:outline-none text-gray-900"
+                  placeholder="Votre nom"
+                />
+              </div>
+              
+              {/* Prénom */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Prénom</label>
+                <input
+                  type="text"
+                  value={step2Data.prenom}
+                  onChange={(e) => setStep2Data({...step2Data, prenom: e.target.value})}
+                  className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-900 rounded-full focus:outline-none text-gray-900"
+                  placeholder="Votre prénom"
+                />
+              </div>
+              
+              {/* Deuxième prénom */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Deuxième prénom (optionnel)</label>
+                <input
+                  type="text"
+                  value={step2Data.deuxiemePrenom}
+                  onChange={(e) => setStep2Data({...step2Data, deuxiemePrenom: e.target.value})}
+                  className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-900 rounded-full focus:outline-none text-gray-900"
+                  placeholder="Deuxième prénom"
+                />
+              </div>
+              
+              {/* Âge */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Âge</label>
+                <input
+                  type="number"
+                  value={step2Data.age}
+                  onChange={(e) => setStep2Data({...step2Data, age: e.target.value})}
+                  className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-900 rounded-full focus:outline-none text-gray-900"
+                  placeholder="Votre âge"
+                />
+              </div>
+              
+              {/* Sexe */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Sexe</label>
+                <select
+                  value={step2Data.sexe}
+                  onChange={(e) => setStep2Data({...step2Data, sexe: e.target.value})}
+                  className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-900 rounded-full focus:outline-none text-gray-900"
+                >
+                  <option value="">Sélectionnez</option>
+                  <option value="homme">Homme</option>
+                  <option value="femme">Femme</option>
+                  <option value="autre">Autre</option>
+                </select>
+              </div>
+            </div>
+            
+            {error && (
+              <p className="text-sm text-red-600">{error}</p>
+            )}
+            
+            <div className="flex justify-center mt-8">
+              <button
+                className="py-3 px-8 bg-gray-900 hover:bg-gray-800 text-white rounded-full font-medium transition-colors border-2 border-gray-900"
+                onClick={() => console.log("Step2 Suivant", step2Data)}
+              >
+                Suivant
               </button>
             </div>
           </div>
