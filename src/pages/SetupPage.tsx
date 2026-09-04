@@ -220,8 +220,12 @@ export default function SetupPage() {
         setStepStatus("success");
         setError("");
         console.log("✅ Validation réussie - Animation Step1 démarre (3s)");
-        // Note: Pas de déclenchement automatique Thanos
-        // L'utilisateur doit cliquer "Suivant" après l'animation
+        
+        // APRÈS 3s (fin animation Step1) → Désintégration automatique
+        setTimeout(() => {
+          console.log("🔥 Animation Step1 terminée - Déclenchement AUTOMATIQUE Thanos !");
+          setTriggerThanos(true);
+        }, 3000); // 3s pour l'animation Step1 complète
       } else {
         // Erreur
         setStepStatus("error");
@@ -237,13 +241,6 @@ export default function SetupPage() {
         }, 2000);
       }
     }, 3000);
-  };
-
-  // Passer au Step2 avec effet Thanos
-  const handleGoToStep2 = () => {
-    console.log("🔥 Clic 'Suivant' - Déclenchement Thanos !");
-    setTriggerThanos(true);
-    // handleThanosComplete sera appelé automatiquement après la désintégration
   };
 
   // Restaurer un wallet existant
@@ -457,43 +454,36 @@ export default function SetupPage() {
             
             {/* Boutons Valider/Suivant et icône Coller - centrés et descendus */}
             <div className="flex items-center justify-center gap-3 mt-8">
-              <button
-                id="BtnValidate1"
-                title="BtnValidate1 - Validate/Next Button"
-                onClick={() => {
-                  console.log("🔥🔥 CLIC BOUTON ! stepStatus:", stepStatus);
-                  if (stepStatus === "success") {
-                    console.log("✅ Appel handleGoToStep2");
-                    handleGoToStep2();
-                  } else {
-                    console.log("✅ Appel handleValidateMnemonic");
-                    handleValidateMnemonic();
-                  }
-                }}
-                disabled={
-                  stepStatus === "validating" || 
-                  (stepStatus !== "success" && validationWords.some(w => !w.trim()))
-                }
-                className="py-3 px-8 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-full font-medium transition-colors border-2 border-gray-900"
-              >
-                {stepStatus === "validating" 
-                  ? "Validation..." 
-                  : stepStatus === "success" 
-                    ? "Suivant" 
-                    : "Valider"}
-              </button>
-              
-              {/* Icône Coller - masquée après succès */}
+              {/* Masquer boutons après succès (désintégration automatique) */}
               {stepStatus !== "success" && (
-                <button
-                  id="BtnPasteIcon1"
-                  title="BtnPasteIcon1 - Paste Icon Button"
-                  onClick={handlePasteAllWords}
-                  disabled={stepStatus === "validating"}
-                  className="p-3 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-full transition-colors border-2 border-gray-900"
-                >
-                  📋
-                </button>
+                <>
+                  <button
+                    id="BtnValidate1"
+                    title="BtnValidate1 - Validate Button"
+                    onClick={() => {
+                      console.log("🔥🔥 CLIC BOUTON ! stepStatus:", stepStatus);
+                      handleValidateMnemonic();
+                    }}
+                    disabled={
+                      stepStatus === "validating" || 
+                      validationWords.some(w => !w.trim())
+                    }
+                    className="py-3 px-8 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-full font-medium transition-colors border-2 border-gray-900"
+                  >
+                    {stepStatus === "validating" ? "Validation..." : "Valider"}
+                  </button>
+                  
+                  {/* Icône Coller */}
+                  <button
+                    id="BtnPasteIcon1"
+                    title="BtnPasteIcon1 - Paste Icon Button"
+                    onClick={handlePasteAllWords}
+                    disabled={stepStatus === "validating"}
+                    className="p-3 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-full transition-colors border-2 border-gray-900"
+                  >
+                    📋
+                  </button>
+                </>
               )}
             </div>
           </div>
