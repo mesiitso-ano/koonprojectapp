@@ -3,6 +3,7 @@ import { useEffect, useMemo } from "react";
 import { useAppStore } from "./store/appStore";
 import SetupPage from "./pages/SetupPage";
 import ChatPage from "./pages/ChatPage";
+import ProfilePage from "./pages/ProfilePage";
 import UpdateChecker from "./components/UpdateChecker";
 
 export default function App() {
@@ -24,6 +25,7 @@ export default function App() {
     console.log("🎨 App: Calcul du pageContent pour:", currentPage);
     if (currentPage === "setup") return <SetupPage />;
     if (currentPage === "chat") return <ChatPage />;
+    if (currentPage === "profile") return <ProfilePage />;
     return null;
   }, [currentPage]);
 

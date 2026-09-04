@@ -24,6 +24,7 @@ export default function ChatPage() {
   const wallet = useAppStore((state) => state.wallet);
   const contacts = useAppStore((state) => state.contacts);
   const selectedContactId = useAppStore((state) => state.selectedContactId);
+  const setCurrentPage = useAppStore((state) => state.setCurrentPage);
   
   const [showAddContact, setShowAddContact] = useState(false);
 
@@ -42,16 +43,30 @@ export default function ChatPage() {
         <div id="SidebarHeader2" title="SidebarHeader2 - Sidebar Header" className="p-4 border-b border-koon-border-light">
           <div id="HeaderTop2" title="HeaderTop2 - Header Top Section" className="flex items-center justify-between mb-4">
             <h2 id="TitreConv2" title="TitreConv2 - Conversations Title" className="text-xl font-bold text-koon-900">Conversations</h2>
-            <button
-              id="BtnAddContact2"
-              title="BtnAddContact2 - Add Contact Button"
-              onClick={() => setShowAddContact(true)}
-              className="p-2 hover:bg-koon-200 rounded-lg transition-colors"
-            >
-              <svg className="w-5 h-5 text-koon-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-            </button>
+            <div className="flex items-center gap-2">
+              {/* Bouton Profil */}
+              <button
+                id="BtnProfile2"
+                title="BtnProfile2 - Profile Button"
+                onClick={() => setCurrentPage("profile")}
+                className="p-2 hover:bg-koon-200 rounded-lg transition-colors"
+              >
+                <svg className="w-5 h-5 text-koon-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </button>
+              {/* Bouton Ajouter Contact */}
+              <button
+                id="BtnAddContact2"
+                title="BtnAddContact2 - Add Contact Button"
+                onClick={() => setShowAddContact(true)}
+                className="p-2 hover:bg-koon-200 rounded-lg transition-colors"
+              >
+                <svg className="w-5 h-5 text-koon-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              </button>
+            </div>
           </div>
           <div id="PublicKeyDisplay2" title="PublicKeyDisplay2 - Wallet Public Key" className="text-xs text-koon-text-secondary font-mono truncate flex items-center gap-2">
             <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -11,6 +11,7 @@ interface AppState {
   // Wallet cryptographique
   wallet: Wallet | null;
   setWallet: (wallet: Wallet) => void;
+  updateProfile: (profileData: Partial<Wallet["profile"]>) => void;
 
   // Contacts et messages
   contacts: Contact[];
@@ -35,6 +36,25 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({ wallet });
     // Sauvegarde automatique dans SQLite via Tauri
     invoke("save_wallet", { wallet }).catch(console.error);
+  },
+
+  updateProfile: (profileData) => {
+    set((state) => {
+      if (!state.wallet) return state;
+      
+      const updatedWallet = {
+        ...state.wallet,
+        profile: {
+          ...state.wallet.profile,
+          ...profileData
+        }
+      };
+      
+      // Sauvegarde automatique
+      invoke("save_wallet", { wallet: updatedWallet }).catch(console.error);
+      
+      return { wallet: updatedWallet };
+    });
   },
 
   contacts: [],
