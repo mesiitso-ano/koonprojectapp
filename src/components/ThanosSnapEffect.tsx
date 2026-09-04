@@ -12,16 +12,13 @@ import {
   useMotionValueEvent,
 } from 'motion/react';
 
-// ⚡ Paramètres optimisés pour FLUIDITÉ MAXIMALE et particules visibles
-const DURATION_SECONDS = 1.2; // Durée optimale pour fluidité
-const MAX_DISPLACEMENT = 400; // Dispersion modérée pour meilleur contrôle
+// ⚡ Paramètres ULTRA FLUIDES - Poussière légère qui s'envole
+const DURATION_SECONDS = 0.8; // Court et vif
+const MAX_DISPLACEMENT = 350; // Dispersion rapide et naturelle
 
 const transition = {
   duration: DURATION_SECONDS,
-  ease: (time: number) => {
-    // Courbe ease-out pour ralentir progressivement
-    return 1 - Math.pow(1 - time, 2);
-  },
+  ease: [0.25, 0.1, 0.25, 1], // easeOutCubic - Accélération naturelle
 };
 
 interface ThanosSnapEffectProps extends PropsWithChildren {
@@ -52,15 +49,18 @@ export function ThanosSnapEffect({
 
     console.log("🔥 Thanos Snap Effect démarré !");
 
+    // Animation simultanée pour fluidité maximale
     await Promise.all([
+      // Scale léger et disparition progressive
       animate(
         dissolveTargetRef.current!,
         { 
-          scale: 1.1,
-          opacity: 0
+          scale: 1.05, // Expansion subtile
+          opacity: 0   // Disparition directe
         },
         transition
       ),
+      // Dispersion des particules
       animate(displacement, MAX_DISPLACEMENT, transition)
     ]);
 
@@ -97,9 +97,10 @@ export function ThanosSnapEffect({
         ref={dissolveTargetRef}
         style={{ 
           filter: 'url(#dissolve-filter)',
-          willChange: 'transform, opacity', // Force l'accélération GPU
-          backfaceVisibility: 'hidden', // Optimisation rendering
-          transform: 'translateZ(0)' // Force layer GPU
+          willChange: 'transform, opacity, filter', // Force GPU
+          backfaceVisibility: 'hidden',
+          transform: 'translateZ(0) translate3d(0,0,0)', // Force layer GPU
+          WebkitFontSmoothing: 'antialiased' // Smooth rendering
         }}
       >
         {children}
@@ -114,25 +115,25 @@ export function ThanosSnapEffect({
             height="600%"
             colorInterpolationFilters="sRGB"
           >
-            {/* Bruit principal pour grandes particules TRÈS VISIBLES */}
+            {/* Bruit principal - OPTIMISÉ pour performance */}
             <feTurbulence
               type="fractalNoise"
-              baseFrequency="0.015" // Particules plus grandes
-              numOctaves="2"
+              baseFrequency="0.01" // Réduit pour moins de calculs
+              numOctaves="1" // Minimal pour fluidité max
               result="bigNoise"
             />
             <feComponentTransfer
               in="bigNoise"
               result="bigNoiseAdjusted"
             >
-              <feFuncR type="linear" slope="1" intercept="-0.3" />
-              <feFuncG type="linear" slope="4" intercept="-0.8" />
+              <feFuncR type="linear" slope="1.2" intercept="-0.4" />
+              <feFuncG type="linear" slope="4" intercept="-1" />
             </feComponentTransfer>
-            {/* Bruit fin pour texture de poussière */}
+            {/* Bruit fin - LÉGER */}
             <feTurbulence
               type="fractalNoise"
-              baseFrequency="0.5" // Texture plus visible
-              numOctaves="2"
+              baseFrequency="0.3" // Réduit pour fluidité
+              numOctaves="1" // Minimal
               result="fineNoise"
             />
             <feMerge result="combinedNoise">
