@@ -27,8 +27,8 @@ export default function LocationPicker({ onLocationChange, initialLat, initialLn
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
-        const lat = position.coords.latitude.toFixed(6);
-        const lng = position.coords.longitude.toFixed(6);
+        const lat = position.coords.latitude.toFixed(8); // Précision maximale 8 décimales (~1mm)
+        const lng = position.coords.longitude.toFixed(8);
         
         setLatitude(lat);
         setLongitude(lng);
@@ -61,9 +61,9 @@ export default function LocationPicker({ onLocationChange, initialLat, initialLn
         setIsLocating(false);
       },
       {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
+        enableHighAccuracy: true,      // Précision maximale (GPS + WiFi + cellulaire)
+        timeout: 30000,                 // Timeout 30s pour laisser le temps au GPS
+        maximumAge: 0                   // Aucune mise en cache, toujours une nouvelle position
       }
     );
   };
@@ -218,7 +218,7 @@ export default function LocationPicker({ onLocationChange, initialLat, initialLn
               <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <p className="text-xs text-gray-400">±10m</p>
+              <p className="text-xs text-gray-400">🎯 GPS haute précision</p>
             </div>
             <div className="flex items-center gap-2">
               <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
