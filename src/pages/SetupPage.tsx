@@ -116,6 +116,9 @@ export default function SetupPage() {
 
   // Callback après dissolution Thanos
   const handleThanosComplete = () => {
+    console.log("✅ Désintégration terminée - Passage au Step2");
+    // Réinitialiser triggerThanos pour permettre de futures animations
+    setTriggerThanos(false);
     // Passer au Step2
     setCurrentStep(2);
     setStepProgress(0);
