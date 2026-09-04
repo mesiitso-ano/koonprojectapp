@@ -36,6 +36,11 @@ export default function SetupPage() {
   // État pour déclencher l'effet Thanos
   const [triggerThanos, setTriggerThanos] = useState(false);
   
+  // DEBUG : Logger quand triggerThanos change
+  useEffect(() => {
+    console.log("🎯 STATE triggerThanos changé:", triggerThanos);
+  }, [triggerThanos]);
+  
   // États Step2 (formulaire)
   const [step2Data, setStep2Data] = useState({
     nom: "",
@@ -209,12 +214,13 @@ export default function SetupPage() {
         setError("");
         
         // Attendre la FIN COMPLÈTE de l'animation Step1
-        // - Check fade-in : 300ms
-        // - Couleur coule dans tige : 1500ms (démarre à t=500ms)
-        // - Step monte de 30px : 1000ms (démarre quand tige = 100%)
-        // Total: 500ms + 1500ms + 1000ms = 3000ms
+        // - Check fade-in : 500ms
+        // - Couleur coule dans tige : 1500ms
+        // - Step monte de 30px : 1000ms
+        // Total: 3000ms
+        console.log("✅ stepStatus = 'success' - Démarrage timer 3s pour Thanos");
         setTimeout(() => {
-          console.log("🎬 Animation Step1 COMPLÈTE - Déclenchement Thanos sur TOUTE la carte");
+          console.log("🔥🔥🔥 DÉCLENCHEMENT THANOS MAINTENANT !");
           setTriggerThanos(true);
         }, 3000); // 3s après stepStatus = "success"
       } else {

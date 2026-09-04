@@ -73,8 +73,9 @@ export function ThanosSnapEffect({
 
   // Surveiller triggerDissolve avec useEffect
   useEffect(() => {
+    console.log("🎯 ThanosSnapEffect - triggerDissolve:", triggerDissolve, "hasDissolvedRef:", hasDissolvedRef.current);
     if (triggerDissolve && !hasDissolvedRef.current) {
-      console.log("⚡ Trigger Thanos détecté !");
+      console.log("⚡⚡⚡ LANCEMENT DISSOLUTION THANOS !");
       handleDissolve();
     }
   }, [triggerDissolve]);
