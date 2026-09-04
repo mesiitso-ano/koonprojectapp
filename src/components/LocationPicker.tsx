@@ -86,11 +86,8 @@ export default function LocationPicker({ onLocationChange, initialLat, initialLn
       {/* Header contrôles */}
       <div className="bg-white border-2 border-gray-900 rounded-2xl p-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            🌍 Localisation 3D
+          <h3 className="text-lg font-bold text-gray-900">
+            🗺️ Localisation
           </h3>
         </div>
 
@@ -111,10 +108,6 @@ export default function LocationPicker({ onLocationChange, initialLat, initialLn
             </>
           ) : (
             <>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
               📍 Activer
             </>
           )}
@@ -130,10 +123,7 @@ export default function LocationPicker({ onLocationChange, initialLat, initialLn
       {/* Coordonnées manuelles */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
-            </svg>
+          <label className="block text-sm font-bold text-gray-900 mb-2">
             Latitude
           </label>
           <input
@@ -145,10 +135,7 @@ export default function LocationPicker({ onLocationChange, initialLat, initialLn
           />
         </div>
         <div>
-          <label className="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
-            </svg>
+          <label className="block text-sm font-bold text-gray-900 mb-2">
             Longitude
           </label>
           <input
@@ -165,14 +152,11 @@ export default function LocationPicker({ onLocationChange, initialLat, initialLn
       {address && (
         <div className="bg-gray-900 border-2 border-gray-900 rounded-xl p-4">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center flex-shrink-0">
-              <svg className="w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
+            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center flex-shrink-0 text-xl">
+              📍
             </div>
             <div className="flex-1">
-              <p className="text-xs text-gray-400 mb-1">📍 Adresse</p>
+              <p className="text-xs text-gray-400 mb-1">Adresse</p>
               <p className="text-sm text-white leading-relaxed">{address}</p>
             </div>
           </div>
@@ -194,14 +178,12 @@ export default function LocationPicker({ onLocationChange, initialLat, initialLn
       ) : (
         <div className="bg-white border-2 border-gray-900 rounded-2xl p-8 h-[500px] flex items-center justify-center">
           <div className="text-center">
-            <div className="w-24 h-24 bg-gray-100 border-4 border-gray-900 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+            <div className="w-24 h-24 bg-gray-100 border-4 border-gray-900 rounded-full flex items-center justify-center mx-auto mb-4 text-5xl">
+              🌍
             </div>
-            <p className="text-lg font-bold text-gray-900 mb-2">🌍</p>
+            <p className="text-lg font-bold text-gray-900 mb-2">Carte non disponible</p>
             <p className="text-sm text-gray-600">
-              📍 Activez votre localisation
+              Activez votre localisation
             </p>
           </div>
         </div>

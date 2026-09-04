@@ -42,8 +42,9 @@ export default function DraggableMap({ latitude, longitude, onPositionChange }: 
     const map = window.L.map(mapContainerRef.current, {
       center: [lat, lng],
       zoom: 18,
-      zoomControl: true,
+      zoomControl: false,        // Masquer les boutons +/-
       scrollWheelZoom: true,
+      attributionControl: false, // Masquer "© OpenStreetMap"
     });
 
     // Couche OpenStreetMap standard
