@@ -117,19 +117,19 @@ export default function SetupPage() {
 
   // Callback après dissolution Thanos
   const handleThanosComplete = () => {
-    console.log("✅ Désintégration terminée - Attente 300ms avant Step2");
-    // Réinitialiser triggerThanos
-    setTriggerThanos(false);
+    console.log("✅ Désintégration terminée - Passage immédiat au Step2");
     
-    // Attendre un peu avant d'afficher Step2 pour laisser Carte1 complètement disparaître
+    // D'ABORD masquer Carte1 en changeant signupSubStep
+    setSignupSubStep("form"); // Nouveau substep pour Step2
+    
+    // PUIS passer au Step2 après un court délai
     setTimeout(() => {
-      console.log("🎯 Affichage Step2");
+      setTriggerThanos(false);
       setIsDissolving(false);
       setCurrentStep(2);
       setStepProgress(0);
       setStepStatus("progress");
-      setSignupSubStep("display");
-    }, 300); // 300ms de délai
+    }, 100); // Délai minimal pour que Carte1 disparaisse
   };
 
   // Retour à la page initiale
@@ -504,7 +504,7 @@ export default function SetupPage() {
         )}
 
         {/* FLOW INSCRIPTION - Step 2 : Formulaire informations personnelles */}
-        {currentView === "signup-flow" && currentStep === 2 && (
+        {currentView === "signup-flow" && currentStep === 2 && signupSubStep === "form" && (
           <div id="Step2Form1" title="Step2Form1 - Personal Info Form" className="space-y-4 animate-fadeIn">
             <p id="Step2Label1" title="Step2Label1" className="text-sm text-gray-600 mb-3">
               Informations personnelles :
