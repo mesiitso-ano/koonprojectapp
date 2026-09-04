@@ -35,7 +35,6 @@ export default function SetupPage() {
   
   // État pour déclencher l'effet Thanos
   const [triggerThanos, setTriggerThanos] = useState(false);
-  const [isDissolving, setIsDissolving] = useState(false); // Pour masquer Carte1 pendant dissolution
   
   // DEBUG : Logger quand triggerThanos change
   useEffect(() => {
@@ -120,12 +119,11 @@ export default function SetupPage() {
     console.log("✅ Désintégration terminée - Passage immédiat au Step2");
     
     // D'ABORD masquer Carte1 en changeant signupSubStep
-    setSignupSubStep("form"); // Nouveau substep pour Step2
+    setSignupSubStep("display"); // Retour au substep display
     
     // PUIS passer au Step2 après un court délai
     setTimeout(() => {
       setTriggerThanos(false);
-      setIsDissolving(false);
       setCurrentStep(2);
       setStepProgress(0);
       setStepStatus("progress");
@@ -244,7 +242,6 @@ export default function SetupPage() {
   // Passer au Step2 avec effet Thanos
   const handleGoToStep2 = () => {
     console.log("🔥 Clic 'Suivant' - Déclenchement Thanos !");
-    setIsDissolving(true); // Marquer qu'on est en dissolution
     setTriggerThanos(true);
     // handleThanosComplete sera appelé automatiquement après la désintégration
   };
@@ -504,7 +501,7 @@ export default function SetupPage() {
         )}
 
         {/* FLOW INSCRIPTION - Step 2 : Formulaire informations personnelles */}
-        {currentView === "signup-flow" && currentStep === 2 && signupSubStep === "form" && (
+        {currentView === "signup-flow" && currentStep === 2 && (
           <div id="Step2Form1" title="Step2Form1 - Personal Info Form" className="space-y-4 animate-fadeIn">
             <p id="Step2Label1" title="Step2Label1" className="text-sm text-gray-600 mb-3">
               Informations personnelles :

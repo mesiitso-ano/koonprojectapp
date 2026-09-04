@@ -12,13 +12,13 @@ import {
   useMotionValueEvent,
 } from 'motion/react';
 
-// ⚡ Paramètres ULTRA FLUIDES - Poussière légère qui s'envole
-const DURATION_SECONDS = 0.8; // Court et vif
-const MAX_DISPLACEMENT = 350; // Dispersion rapide et naturelle
+// ⚡ FLUIDITÉ MAXIMALE - Poussière ultra légère
+const DURATION_SECONDS = 0.6; // Très rapide
+const MAX_DISPLACEMENT = 300; // Dispersion légère et rapide
 
 const transition = {
   duration: DURATION_SECONDS,
-  ease: [0.25, 0.1, 0.25, 1], // easeOutCubic - Accélération naturelle
+  ease: (t: number) => t * (2 - t), // easeOutQuad - Très fluide et rapide
 };
 
 interface ThanosSnapEffectProps extends PropsWithChildren {
@@ -97,11 +97,11 @@ export function ThanosSnapEffect({
         ref={dissolveTargetRef}
         style={{ 
           filter: 'url(#dissolve-filter)',
-          willChange: 'transform, opacity, filter', // Force GPU
+          willChange: 'transform, opacity, filter',
           backfaceVisibility: 'hidden',
-          transform: 'translateZ(0) translate3d(0,0,0)', // Force layer GPU
-          WebkitFontSmoothing: 'antialiased' // Smooth rendering
-        }}
+          transform: 'translateZ(0)',
+          WebkitFontSmoothing: 'antialiased'
+        } as React.CSSProperties}
       >
         {children}
       </m.div>
@@ -115,35 +115,21 @@ export function ThanosSnapEffect({
             height="600%"
             colorInterpolationFilters="sRGB"
           >
-            {/* Bruit principal - OPTIMISÉ pour performance */}
+            {/* ULTRA OPTIMISÉ - Minimal pour fluidité MAX */}
             <feTurbulence
               type="fractalNoise"
-              baseFrequency="0.01" // Réduit pour moins de calculs
-              numOctaves="1" // Minimal pour fluidité max
-              result="bigNoise"
+              baseFrequency="0.008"
+              numOctaves="1"
+              result="noise"
             />
-            <feComponentTransfer
-              in="bigNoise"
-              result="bigNoiseAdjusted"
-            >
-              <feFuncR type="linear" slope="1.2" intercept="-0.4" />
-              <feFuncG type="linear" slope="4" intercept="-1" />
+            <feComponentTransfer in="noise" result="adjusted">
+              <feFuncR type="linear" slope="2" intercept="-0.5" />
+              <feFuncG type="linear" slope="5" intercept="-1.2" />
             </feComponentTransfer>
-            {/* Bruit fin - LÉGER */}
-            <feTurbulence
-              type="fractalNoise"
-              baseFrequency="0.3" // Réduit pour fluidité
-              numOctaves="1" // Minimal
-              result="fineNoise"
-            />
-            <feMerge result="combinedNoise">
-              <feMergeNode in="bigNoiseAdjusted" />
-              <feMergeNode in="fineNoise" />
-            </feMerge>
             <feDisplacementMap
               ref={displacementMapRef}
               in="SourceGraphic"
-              in2="combinedNoise"
+              in2="adjusted"
               scale="0"
               xChannelSelector="R"
               yChannelSelector="G"
