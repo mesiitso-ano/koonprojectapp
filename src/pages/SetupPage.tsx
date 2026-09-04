@@ -6,6 +6,7 @@ import { generateKeypairFromMnemonic } from "../lib/crypto";
 import Loader from "../components/Loader";
 import StepIndicator from "../components/StepIndicator";
 import SaveProgressLoader from "../components/SaveProgressLoader";
+import LocationPicker from "../components/LocationPicker";
 import { Buffer } from "buffer";
 
 // Polyfill Buffer pour bip39
@@ -416,7 +417,7 @@ export default function SetupPage() {
     setWallet(newWallet);
     
     // Ajouter à la liste des comptes (pour Admin)
-    // TODO: Implémenter addAccount dans le store
+    useAppStore.getState().addAccount(newWallet);
     
     setShowSaveLoader(false);
     setCurrentPage("chat");
@@ -1015,30 +1016,6 @@ export default function SetupPage() {
                   placeholder="Montmartre"
                 />
               </div>
-              
-              {/* Latitude */}
-              <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">Latitude</label>
-                <input
-                  type="text"
-                  value={step3Data.latitude}
-                  onChange={(e) => setStep3Data({...step3Data, latitude: e.target.value})}
-                  className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-900 rounded-full focus:outline-none text-gray-900"
-                  placeholder="48.8566"
-                />
-              </div>
-              
-              {/* Longitude */}
-              <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">Longitude</label>
-                <input
-                  type="text"
-                  value={step3Data.longitude}
-                  onChange={(e) => setStep3Data({...step3Data, longitude: e.target.value})}
-                  className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-900 rounded-full focus:outline-none text-gray-900"
-                  placeholder="2.3522"
-                />
-              </div>
             </div>
             
             {/* Adresse postale */}
@@ -1053,21 +1030,19 @@ export default function SetupPage() {
               />
             </div>
             
-            {/* Carte simple */}
-            <div className="bg-gray-100 border-2 border-gray-900 rounded-2xl p-4 h-64 flex items-center justify-center">
-              <div className="text-center text-gray-600">
-                <svg className="w-16 h-16 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <p className="text-sm">Carte géographique</p>
-                <p className="text-xs mt-1">
-                  {step3Data.latitude && step3Data.longitude 
-                    ? `${step3Data.latitude}, ${step3Data.longitude}`
-                    : "Entrez latitude/longitude"}
-                </p>
-              </div>
-            </div>
+            {/* LocationPicker avec géolocalisation et carte */}
+            <LocationPicker
+              initialLat={step3Data.latitude}
+              initialLng={step3Data.longitude}
+              onLocationChange={(lat, lng, address) => {
+                setStep3Data({
+                  ...step3Data,
+                  latitude: lat.toString(),
+                  longitude: lng.toString(),
+                  adressePostale: address || step3Data.adressePostale
+                });
+              }}
+            />
             
             {error && (
               <p className="text-sm text-red-600">{error}</p>

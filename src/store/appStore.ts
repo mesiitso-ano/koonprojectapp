@@ -13,6 +13,10 @@ interface AppState {
   setWallet: (wallet: Wallet) => void;
   updateProfile: (profileData: Partial<Wallet["profile"]>) => void;
 
+  // Liste des comptes créés (pour Admin)
+  accounts: Wallet[];
+  addAccount: (wallet: Wallet) => void;
+
   // Contacts et messages
   contacts: Contact[];
   selectedContactId: string | null;
@@ -55,6 +59,14 @@ export const useAppStore = create<AppState>((set, get) => ({
       
       return { wallet: updatedWallet };
     });
+  },
+
+  // Liste des comptes
+  accounts: [],
+  addAccount: (wallet) => {
+    set((state) => ({
+      accounts: [...state.accounts, wallet]
+    }));
   },
 
   contacts: [],

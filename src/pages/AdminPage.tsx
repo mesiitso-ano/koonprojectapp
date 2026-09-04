@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useAppStore } from "../store/appStore";
 
 export default function AdminPage() {
-  const { wallet, contacts, setCurrentPage } = useAppStore();
+  const { wallet, contacts, accounts, setCurrentPage } = useAppStore();
   const [activeSection, setActiveSection] = useState<"dashboard" | "users" | "system" | "logs">("dashboard");
 
   return (
@@ -80,7 +80,17 @@ export default function AdminPage() {
             <h2 className="text-2xl font-bold text-yellow-500">📊 Dashboard</h2>
             
             {/* Stats Cards */}
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-4 gap-6">
+              <div className="bg-gray-800 border-2 border-yellow-500 rounded-xl p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-400 text-sm">Total Comptes</p>
+                    <p className="text-4xl font-bold text-yellow-500">{accounts.length}</p>
+                  </div>
+                  <div className="text-5xl">👤</div>
+                </div>
+              </div>
+              
               <div className="bg-gray-800 border-2 border-yellow-500 rounded-xl p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -130,6 +140,42 @@ export default function AdminPage() {
                 </div>
               </div>
             </div>
+            {/* Liste comptes créés */}
+            <div className="bg-gray-800 border-2 border-yellow-500 rounded-xl p-6">
+              <h3 className="text-xl font-bold text-yellow-500 mb-4">👤 Comptes créés ({accounts.length})</h3>
+              {accounts.length === 0 ? (
+                <p className="text-gray-400 text-center py-4">Aucun compte créé</p>
+              ) : (
+                <div className="space-y-3">
+                  {accounts.map((account, index) => (
+                    <div key={index} className="bg-gray-900 p-4 rounded-lg border border-gray-700">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="font-bold text-white">
+                          {account.profile?.nom} {account.profile?.prenom}
+                        </p>
+                        <span className="text-xs bg-green-500 text-white px-2 py-1 rounded-full">
+                          ✅ Actif
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <span className="text-gray-400">Email:</span>
+                          <p className="text-white truncate">{account.profile?.email || "—"}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">Ville:</span>
+                          <p className="text-white">{account.profile?.ville || "—"}</p>
+                        </div>
+                        <div className="col-span-2">
+                          <span className="text-gray-400">Clé publique:</span>
+                          <p className="text-white font-mono text-xs truncate">{account.publicKey}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -138,9 +184,70 @@ export default function AdminPage() {
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-yellow-500">👥 Gestion Utilisateurs</h2>
             
+            {/* Tous les comptes */}
+            <div className="bg-gray-800 border-2 border-yellow-500 rounded-xl p-6">
+              <h3 className="text-xl font-bold text-yellow-500 mb-4">Liste complète des comptes ({accounts.length})</h3>
+              {accounts.length === 0 ? (
+                <p className="text-gray-400 text-center py-8">Aucun compte enregistré</p>
+              ) : (
+                <div className="space-y-4">
+                  {accounts.map((account, index) => (
+                    <div key={index} className="bg-gray-900 p-6 rounded-xl border-2 border-gray-700">
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <h4 className="text-lg font-bold text-white">
+                            {account.profile?.nom} {account.profile?.prenom} {account.profile?.deuxiemePrenom}
+                          </h4>
+                          <p className="text-sm text-gray-400">{account.profile?.age} ans • {account.profile?.sexe}</p>
+                        </div>
+                        <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                          Compte #{index + 1}
+                        </span>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <p className="text-gray-400">📧 Email</p>
+                          <p className="text-white">{account.profile?.email}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400">📞 Téléphone</p>
+                          <p className="text-white">{account.profile?.telephone}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400">🌍 Pays</p>
+                          <p className="text-white capitalize">{account.profile?.pays}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400">🏙️ Ville</p>
+                          <p className="text-white">{account.profile?.ville}</p>
+                        </div>
+                        <div className="col-span-2">
+                          <p className="text-gray-400">📍 Adresse</p>
+                          <p className="text-white">{account.profile?.adressePostale}</p>
+                        </div>
+                        <div className="col-span-2">
+                          <p className="text-gray-400">🗺️ Coordonnées GPS</p>
+                          <p className="text-white font-mono text-xs">
+                            {account.profile?.latitude && account.profile?.longitude
+                              ? `${account.profile.latitude}, ${account.profile.longitude}`
+                              : "Non renseigné"}
+                          </p>
+                        </div>
+                        <div className="col-span-2">
+                          <p className="text-gray-400">🔑 Clé publique</p>
+                          <p className="text-white font-mono text-xs break-all">{account.publicKey}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
             {/* Profile Admin */}
             <div className="bg-gray-800 border-2 border-yellow-500 rounded-xl p-6">
-              <h3 className="text-xl font-bold text-yellow-500 mb-4">Profil Utilisateur</h3>
+              <h3 className="text-xl font-bold text-yellow-500 mb-4">Profil Utilisateur Actif</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-400">Nom</p>
