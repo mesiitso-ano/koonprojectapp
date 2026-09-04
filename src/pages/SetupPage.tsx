@@ -299,6 +299,8 @@ export default function SetupPage() {
         </button>
       )}
       
+      {/* CARTE1 - Affichée UNIQUEMENT si currentStep === 1 OU view initiale/restore */}
+      {(currentView === "initial" || currentView === "restore-flow" || (currentView === "signup-flow" && currentStep === 1)) && (
       <div 
         id="Carte1" 
         title="Carte1 - Main Setup Card"
@@ -490,9 +492,53 @@ export default function SetupPage() {
           </ThanosSnapEffect>
         )}
 
-        {/* FLOW INSCRIPTION - Step 2 : Formulaire informations personnelles */}
-        {currentView === "signup-flow" && currentStep === 2 && (
-          <div id="Step2Form1" title="Step2Form1 - Personal Info Form" className="space-y-4 animate-fadeIn">
+        {/* FLOW RESTAURATION - Connexion avec phrase existante */}
+        {currentView === "restore-flow" && (
+          <div id="RestoreMode1" title="RestoreMode1 - Restore Wallet Form" className="space-y-4 animate-fadeIn">
+            <div id="InputGroup1" title="InputGroup1 - Mnemonic Input Group">
+              <label id="InputLabel1" title="InputLabel1 - Input Label" className="block text-sm text-gray-600 mb-2">
+                Entrez votre phrase de récupération :
+              </label>
+              <textarea
+                id="InputMnemonic1"
+                title="InputMnemonic1 - Mnemonic Input Field"
+                value={restoreMnemonic}
+                onChange={(e) => {
+                  setRestoreMnemonic(e.target.value);
+                  setError("");
+                }}
+                placeholder="word1 word2 word3 ..."
+                className="w-full h-32 px-4 py-3 bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none font-mono text-sm resize-none text-gray-900"
+              />
+            </div>
+            {error && (
+              <p id="ErrorMsg1" title="ErrorMsg1 - Error Message" className="text-sm text-red-600">{error}</p>
+            )}
+            <button
+              id="BtnRestaurerSubmit1"
+              title="BtnRestaurerSubmit1 - Submit Restore Button"
+              onClick={handleRestoreWallet}
+              className="w-full py-3 px-4 bg-gray-900 hover:bg-gray-800 text-white rounded-full font-medium transition-colors"
+            >
+              Restaurer
+            </button>
+          </div>
+        )}
+      </div>
+      )}
+      
+      {/* CARTE2 - Affichée UNIQUEMENT quand currentStep === 2 (après désintégration) */}
+      {currentView === "signup-flow" && currentStep === 2 && (
+        <div 
+          id="Carte2" 
+          title="Carte2 - Step2 Personal Info Card"
+          className="relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto p-8 space-y-6 bg-white rounded-2xl animate-fadeIn"
+        >
+          <div id="Header2" title="Header2 - Title Section" className="text-center">
+            <h1 id="Titre2" title="Titre2 - App Title" className="text-4xl font-bold text-gray-900 mb-2">Koon</h1>
+          </div>
+
+          <div id="Step2Form1" title="Step2Form1 - Personal Info Form" className="space-y-4">
             <p id="Step2Label1" title="Step2Label1" className="text-sm text-gray-600 mb-3">
               Informations personnelles :
             </p>
@@ -575,41 +621,8 @@ export default function SetupPage() {
               </button>
             </div>
           </div>
-        )}
-
-        {/* FLOW RESTAURATION - Connexion avec phrase existante */}
-        {currentView === "restore-flow" && (
-          <div id="RestoreMode1" title="RestoreMode1 - Restore Wallet Form" className="space-y-4 animate-fadeIn">
-            <div id="InputGroup1" title="InputGroup1 - Mnemonic Input Group">
-              <label id="InputLabel1" title="InputLabel1 - Input Label" className="block text-sm text-gray-600 mb-2">
-                Entrez votre phrase de récupération :
-              </label>
-              <textarea
-                id="InputMnemonic1"
-                title="InputMnemonic1 - Mnemonic Input Field"
-                value={restoreMnemonic}
-                onChange={(e) => {
-                  setRestoreMnemonic(e.target.value);
-                  setError("");
-                }}
-                placeholder="word1 word2 word3 ..."
-                className="w-full h-32 px-4 py-3 bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none font-mono text-sm resize-none text-gray-900"
-              />
-            </div>
-            {error && (
-              <p id="ErrorMsg1" title="ErrorMsg1 - Error Message" className="text-sm text-red-600">{error}</p>
-            )}
-            <button
-              id="BtnRestaurerSubmit1"
-              title="BtnRestaurerSubmit1 - Submit Restore Button"
-              onClick={handleRestoreWallet}
-              className="w-full py-3 px-4 bg-gray-900 hover:bg-gray-800 text-white rounded-full font-medium transition-colors"
-            >
-              Restaurer
-            </button>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
