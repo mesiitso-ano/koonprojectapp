@@ -35,6 +35,7 @@ export default function SetupPage() {
   
   // État pour déclencher l'effet Thanos
   const [triggerThanos, setTriggerThanos] = useState(false);
+  const [isDissolving, setIsDissolving] = useState(false); // Pour masquer Carte1 pendant dissolution
   
   // DEBUG : Logger quand triggerThanos change
   useEffect(() => {
@@ -116,14 +117,19 @@ export default function SetupPage() {
 
   // Callback après dissolution Thanos
   const handleThanosComplete = () => {
-    console.log("✅ Désintégration terminée - Passage au Step2");
-    // Réinitialiser triggerThanos pour permettre de futures animations
+    console.log("✅ Désintégration terminée - Attente 300ms avant Step2");
+    // Réinitialiser triggerThanos
     setTriggerThanos(false);
-    // Passer au Step2
-    setCurrentStep(2);
-    setStepProgress(0);
-    setStepStatus("progress");
-    setSignupSubStep("display"); // Reset substep
+    
+    // Attendre un peu avant d'afficher Step2 pour laisser Carte1 complètement disparaître
+    setTimeout(() => {
+      console.log("🎯 Affichage Step2");
+      setIsDissolving(false);
+      setCurrentStep(2);
+      setStepProgress(0);
+      setStepStatus("progress");
+      setSignupSubStep("display");
+    }, 300); // 300ms de délai
   };
 
   // Retour à la page initiale
@@ -238,6 +244,7 @@ export default function SetupPage() {
   // Passer au Step2 avec effet Thanos
   const handleGoToStep2 = () => {
     console.log("🔥 Clic 'Suivant' - Déclenchement Thanos !");
+    setIsDissolving(true); // Marquer qu'on est en dissolution
     setTriggerThanos(true);
     // handleThanosComplete sera appelé automatiquement après la désintégration
   };

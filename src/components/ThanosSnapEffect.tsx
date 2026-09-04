@@ -13,12 +13,15 @@ import {
 } from 'motion/react';
 
 // ⚡ Paramètres optimisés pour FLUIDITÉ MAXIMALE et particules visibles
-const DURATION_SECONDS = 1.5; // Plus long = plus fluide et visible
-const MAX_DISPLACEMENT = 500; // Dispersion large pour effet dramatique
+const DURATION_SECONDS = 1.2; // Durée optimale pour fluidité
+const MAX_DISPLACEMENT = 400; // Dispersion modérée pour meilleur contrôle
 
 const transition = {
   duration: DURATION_SECONDS,
-  ease: (time: number) => 1 - Math.pow(1 - time, 3), // Courbe fluide
+  ease: (time: number) => {
+    // Courbe ease-out pour ralentir progressivement
+    return 1 - Math.pow(1 - time, 2);
+  },
 };
 
 interface ThanosSnapEffectProps extends PropsWithChildren {
