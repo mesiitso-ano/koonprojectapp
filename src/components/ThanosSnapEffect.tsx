@@ -1,142 +1,91 @@
-/**
- * Thanos Snap Effect - Désintégration en poussière
- * Inspiré par Mikhail Bespalov's codepen
- * https://codepen.io/Mikhail-Bespalov/pen/yLmpxOG
- */
+// Composant Loader avec 4 cercles rotatifs — remplace ThanosSnapEffect
+import { ReactNode } from "react";
 
-import { useRef, useEffect, type PropsWithChildren } from 'react';
-import {
-  m,
-  useAnimate,
-  useMotionValue,
-  useMotionValueEvent,
-} from 'motion/react';
-
-// ⚡ FLUIDITÉ MAXIMALE - Poussière ultra légère
-const DURATION_SECONDS = 0.6; // Très rapide
-const MAX_DISPLACEMENT = 300; // Dispersion légère et rapide
-
-const transition = {
-  duration: DURATION_SECONDS,
-  ease: (t: number) => t * (2 - t), // easeOutQuad - Très fluide et rapide
-};
-
-interface ThanosSnapEffectProps extends PropsWithChildren {
-  onDissolveComplete?: () => void;
+interface ThanosSnapEffectProps {
+  children?: ReactNode;
   triggerDissolve?: boolean;
+  onDissolveComplete?: () => void;
 }
 
-export function ThanosSnapEffect({ 
-  children, 
-  onDissolveComplete,
-  triggerDissolve = false 
+export function ThanosSnapEffect({
+  children,
+  triggerDissolve = false,
 }: ThanosSnapEffectProps) {
-  const [scope, animate] = useAnimate<HTMLDivElement>();
-  const displacementMapRef = useRef<SVGFEDisplacementMapElement>(null);
-  const dissolveTargetRef = useRef<HTMLDivElement>(null);
-  const displacement = useMotionValue(0);
-  const hasDissolvedRef = useRef(false);
+  // Si pas de dissolution déclenchée, afficher children normalement
+  if (!triggerDissolve) {
+    return <>{children}</>;
+  }
 
-  useMotionValueEvent(displacement, "change", (latest) => {
-    displacementMapRef.current?.setAttribute('scale', latest.toString());
-  });
-
-  const handleDissolve = async () => {
-    if (!scope.current || scope.current.dataset.isAnimating === 'true' || hasDissolvedRef.current) return;
-    
-    scope.current.dataset.isAnimating = 'true';
-    hasDissolvedRef.current = true;
-
-    console.log("🔥 Thanos Snap Effect démarré !");
-
-    // Animation simultanée pour fluidité maximale
-    await Promise.all([
-      // Scale léger et disparition progressive
-      animate(
-        dissolveTargetRef.current!,
-        { 
-          scale: 1.05, // Expansion subtile
-          opacity: 0   // Disparition directe
-        },
-        transition
-      ),
-      // Dispersion des particules
-      animate(displacement, MAX_DISPLACEMENT, transition)
-    ]);
-
-    console.log("✅ Thanos Snap Effect terminé !");
-
-    // Appeler le callback après dissolution
-    if (onDissolveComplete) {
-      setTimeout(() => {
-        onDissolveComplete();
-      }, 200);
-    }
-  };
-
-  // Surveiller triggerDissolve avec useEffect
-  useEffect(() => {
-    console.log("🎯 ThanosSnapEffect - triggerDissolve:", triggerDissolve, "hasDissolvedRef:", hasDissolvedRef.current);
-    
-    // Si triggerDissolve passe de false à true, réinitialiser hasDissolvedRef
-    if (triggerDissolve && !hasDissolvedRef.current) {
-      console.log("⚡⚡⚡ LANCEMENT DISSOLUTION THANOS !");
-      handleDissolve();
-    }
-    
-    // Réinitialiser quand triggerDissolve repasse à false
-    if (!triggerDissolve && hasDissolvedRef.current) {
-      console.log("🔄 Réinitialisation hasDissolvedRef pour prochain déclenchement");
-      hasDissolvedRef.current = false;
-    }
-  }, [triggerDissolve]);
-
+  // Afficher le loader pendant la dissolution
   return (
-    <div ref={scope}>
-      <m.div
-        ref={dissolveTargetRef}
-        style={{ 
-          filter: 'url(#dissolve-filter)',
-          willChange: 'transform, opacity, filter',
-          backfaceVisibility: 'hidden',
-          transform: 'translateZ(0)',
-          WebkitFontSmoothing: 'antialiased'
-        } as React.CSSProperties}
-      >
-        {children}
-      </m.div>
-      <svg width="0" height="0" style={{ position: 'absolute' }}>
-        <defs>
-          <filter
-            id="dissolve-filter"
-            x="-300%"
-            y="-300%"
-            width="600%"
-            height="600%"
-            colorInterpolationFilters="sRGB"
-          >
-            {/* ULTRA OPTIMISÉ - Minimal pour fluidité MAX */}
-            <feTurbulence
-              type="fractalNoise"
-              baseFrequency="0.008"
-              numOctaves="1"
-              result="noise"
-            />
-            <feComponentTransfer in="noise" result="adjusted">
-              <feFuncR type="linear" slope="2" intercept="-0.5" />
-              <feFuncG type="linear" slope="5" intercept="-1.2" />
-            </feComponentTransfer>
-            <feDisplacementMap
-              ref={displacementMapRef}
-              in="SourceGraphic"
-              in2="adjusted"
-              scale="0"
-              xChannelSelector="R"
-              yChannelSelector="G"
-            />
-          </filter>
-        </defs>
-      </svg>
+    <div className="flex items-center justify-center w-full h-full">
+      <div className="loader-spin">
+        <div className="circle" />
+        <div className="circle" />
+        <div className="circle" />
+        <div className="circle" />
+      </div>
+
+      <style>{`
+        .loader-spin {
+          --dim: 5rem;
+          width: var(--dim);
+          height: var(--dim);
+          position: relative;
+          animation: spin988 2s linear infinite;
+        }
+
+        .loader-spin .circle {
+          --color: #000;
+          --dim: 2rem;
+          width: var(--dim);
+          height: var(--dim);
+          background-color: var(--color);
+          border-radius: 50%;
+          position: absolute;
+        }
+
+        .loader-spin .circle:nth-child(1) {
+          top: 0;
+          left: 0;
+        }
+
+        .loader-spin .circle:nth-child(2) {
+          top: 0;
+          right: 0;
+        }
+
+        .loader-spin .circle:nth-child(3) {
+          bottom: 0;
+          left: 0;
+        }
+
+        .loader-spin .circle:nth-child(4) {
+          bottom: 0;
+          right: 0;
+        }
+
+        @keyframes spin988 {
+          0% {
+            transform: scale(1) rotate(0);
+          }
+          20%, 25% {
+            transform: scale(1.3) rotate(90deg);
+          }
+          45%, 50% {
+            transform: scale(1) rotate(180deg);
+          }
+          70%, 75% {
+            transform: scale(1.3) rotate(270deg);
+          }
+          95%, 100% {
+            transform: scale(1) rotate(360deg);
+          }
+        }
+      `}</style>
     </div>
   );
 }
+
+// Export par défaut pour compatibilité
+export default ThanosSnapEffect;
