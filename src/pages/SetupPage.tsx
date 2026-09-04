@@ -50,6 +50,28 @@ export default function SetupPage() {
     sexe: ""
   });
   
+  // États Step3 (localisation & contact)
+  const [step3Data, setStep3Data] = useState({
+    pays: "",
+    telephone: "",
+    email: "",
+    emailSecondaire: "",
+    region: "",
+    ville: "",
+    quartier: "",
+    adressePostale: "",
+    latitude: "",
+    longitude: ""
+  });
+  
+  // États Step4 (sécurité)
+  const [step4Data, setStep4Data] = useState({
+    motDePasse: "",
+    confirmMotDePasse: "",
+    codePIN: "",
+    confirmCodePIN: ""
+  });
+  
   // États restauration
   const [restoreMnemonic, setRestoreMnemonic] = useState("");
   const [error, setError] = useState("");
@@ -270,17 +292,134 @@ export default function SetupPage() {
 
   // Callback après dissolution Thanos Step2
   const handleStep2ThanosComplete = () => {
-    console.log("✅ Désintégration Step2 terminée - Passage au Step3 ou ChatPage");
+    console.log("✅ Désintégration Step2 terminée - Passage au Step3");
     
-    // Créer le wallet et passer à la page Chat
+    // Transition vers Step3
+    setTimeout(() => {
+      setTriggerThanos(false);
+      setCurrentStep(3);
+      setStepProgress(0); // Reset progress pour Step3
+      setStepStatus("progress"); // Reset status
+    }, 100);
+  };
+
+  // Valider Step3 (localisation & contact)
+  const handleValidateStep3 = () => {
+    // Vérifier que les champs obligatoires sont remplis
+    if (!step3Data.pays || !step3Data.telephone || !step3Data.email || 
+        !step3Data.region || !step3Data.ville || !step3Data.adressePostale) {
+      setError("Veuillez remplir tous les champs obligatoires");
+      return;
+    }
+    
+    // Validation email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(step3Data.email)) {
+      setError("Adresse email invalide");
+      return;
+    }
+    
+    if (step3Data.emailSecondaire && !emailRegex.test(step3Data.emailSecondaire)) {
+      setError("Deuxième adresse email invalide");
+      return;
+    }
+    
+    setStepProgress(100);
+    setStepStatus("validating");
+    setError("");
+    
+    setTimeout(() => {
+      setStepStatus("success");
+      console.log("✅ Validation Step3 réussie - Animation Step3 démarre (3s)");
+      
+      setTimeout(() => {
+        console.log("🔥 Animation Step3 terminée - Déclenchement AUTOMATIQUE Thanos Step3 !");
+        setTriggerThanos(true);
+      }, 3000);
+    }, 3000);
+  };
+
+  // Callback après dissolution Thanos Step3
+  const handleStep3ThanosComplete = () => {
+    console.log("✅ Désintégration Step3 terminée - Passage au Step4");
+    
+    setTimeout(() => {
+      setTriggerThanos(false);
+      setCurrentStep(4);
+      setStepProgress(0);
+      setStepStatus("progress");
+    }, 100);
+  };
+
+  // Valider Step4 (sécurité)
+  const handleValidateStep4 = () => {
+    // Vérifier que tous les champs sont remplis
+    if (!step4Data.motDePasse || !step4Data.confirmMotDePasse || 
+        !step4Data.codePIN || !step4Data.confirmCodePIN) {
+      setError("Veuillez remplir tous les champs");
+      return;
+    }
+    
+    // Vérifier correspondance mot de passe
+    if (step4Data.motDePasse !== step4Data.confirmMotDePasse) {
+      setError("Les mots de passe ne correspondent pas");
+      return;
+    }
+    
+    // Vérifier force mot de passe
+    if (step4Data.motDePasse.length < 8) {
+      setError("Le mot de passe doit contenir au moins 8 caractères");
+      return;
+    }
+    
+    // Vérifier format code PIN
+    const pinRegex = /^\d{4,6}$/;
+    if (!pinRegex.test(step4Data.codePIN)) {
+      setError("Le code PIN doit contenir entre 4 et 6 chiffres");
+      return;
+    }
+    
+    // Vérifier correspondance code PIN
+    if (step4Data.codePIN !== step4Data.confirmCodePIN) {
+      setError("Les codes PIN ne correspondent pas");
+      return;
+    }
+    
+    setStepProgress(100);
+    setStepStatus("validating");
+    setError("");
+    
+    setTimeout(() => {
+      setStepStatus("success");
+      console.log("✅ Validation Step4 réussie - Animation Step4 démarre (3s)");
+      
+      setTimeout(() => {
+        console.log("🔥 Animation Step4 terminée - Déclenchement AUTOMATIQUE Thanos Step4 !");
+        setTriggerThanos(true);
+      }, 3000);
+    }, 3000);
+  };
+
+  // Callback après dissolution Thanos Step4
+  const handleStep4ThanosComplete = () => {
+    console.log("✅ Désintégration Step4 terminée - Création wallet et passage ProfilePage");
+    
+    // Créer le wallet avec toutes les données
     const keypair = generateKeypairFromMnemonic(mnemonic);
     setWallet({
       mnemonic: mnemonic,
       publicKey: keypair.publicKey,
       privateKey: keypair.privateKey,
+      // Ajouter les données du profil
+      profile: {
+        ...step2Data,
+        ...step3Data,
+        password: step4Data.motDePasse,
+        pin: step4Data.codePIN
+      }
     });
     
-    // Transition vers ChatPage
+    // Transition vers ChatPage (ProfilePage sera accessible depuis ChatPage)
     setTimeout(() => {
       setTriggerThanos(false);
       setCurrentPage("chat");
@@ -318,7 +457,7 @@ export default function SetupPage() {
           currentStep={currentStep} 
           stepProgress={stepProgress}
           stepStatus={stepStatus}
-          totalSteps={3} 
+          totalSteps={4}
         />
       )}
       
@@ -670,6 +809,292 @@ export default function SetupPage() {
                     !step2Data.prenom.trim() || 
                     !step2Data.age || 
                     !step2Data.sexe
+                  }
+                  className="py-3 px-8 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-full font-medium transition-colors border-2 border-gray-900"
+                >
+                  {stepStatus === "validating" ? "Validation..." : "Valider"}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+        </ThanosSnapEffect>
+      )}
+      
+      {/* CARTE4 - Affichée UNIQUEMENT quand currentStep === 4 */}
+      {currentView === "signup-flow" && currentStep === 4 && (
+        <ThanosSnapEffect triggerDissolve={triggerThanos} onDissolveComplete={handleStep4ThanosComplete}>
+        <div 
+          id="Carte4" 
+          title="Carte4 - Step4 Security Card"
+          className="relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto p-8 space-y-6 bg-white rounded-2xl animate-fadeIn"
+        >
+          <div id="Header4" title="Header4 - Title Section" className="text-center">
+            <h1 id="Titre4" title="Titre4 - App Title" className="text-4xl font-bold text-gray-900 mb-2">Koon</h1>
+          </div>
+
+          <div id="Step4Form1" title="Step4Form1 - Security Form" className="space-y-4">
+            <p id="Step4Label1" title="Step4Label1" className="text-sm text-gray-600 mb-3">
+              Sécurité du compte :
+            </p>
+            
+            <div className="space-y-4">
+              {/* Mot de passe */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Mot de passe *</label>
+                <input
+                  type="password"
+                  value={step4Data.motDePasse}
+                  onChange={(e) => setStep4Data({...step4Data, motDePasse: e.target.value})}
+                  className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-900 rounded-full focus:outline-none text-gray-900"
+                  placeholder="Minimum 8 caractères"
+                />
+              </div>
+              
+              {/* Confirmation mot de passe */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Confirmer le mot de passe *</label>
+                <input
+                  type="password"
+                  value={step4Data.confirmMotDePasse}
+                  onChange={(e) => setStep4Data({...step4Data, confirmMotDePasse: e.target.value})}
+                  className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-900 rounded-full focus:outline-none text-gray-900"
+                  placeholder="Confirmer le mot de passe"
+                />
+              </div>
+              
+              {/* Code PIN */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Code PIN *</label>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={step4Data.codePIN}
+                  onChange={(e) => setStep4Data({...step4Data, codePIN: e.target.value.replace(/\D/g, '')})}
+                  className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-900 rounded-full focus:outline-none text-gray-900"
+                  placeholder="4 à 6 chiffres"
+                />
+              </div>
+              
+              {/* Confirmation code PIN */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Confirmer le code PIN *</label>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={step4Data.confirmCodePIN}
+                  onChange={(e) => setStep4Data({...step4Data, confirmCodePIN: e.target.value.replace(/\D/g, '')})}
+                  className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-900 rounded-full focus:outline-none text-gray-900"
+                  placeholder="Confirmer le code PIN"
+                />
+              </div>
+            </div>
+            
+            {error && (
+              <p className="text-sm text-red-600">{error}</p>
+            )}
+            
+            {/* Masquer bouton après succès */}
+            {stepStatus !== "success" && (
+              <div className="flex justify-center mt-8">
+                <button
+                  id="BtnValidateStep4"
+                  title="BtnValidateStep4 - Validate Step4 Button"
+                  onClick={handleValidateStep4}
+                  disabled={
+                    stepStatus === "validating" ||
+                    !step4Data.motDePasse || !step4Data.confirmMotDePasse ||
+                    !step4Data.codePIN || !step4Data.confirmCodePIN
+                  }
+                  className="py-3 px-8 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-full font-medium transition-colors border-2 border-gray-900"
+                >
+                  {stepStatus === "validating" ? "Validation..." : "Valider"}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+        </ThanosSnapEffect>
+      )}
+      
+      {/* CARTE3 - Affichée UNIQUEMENT quand currentStep === 3 */}
+      {currentView === "signup-flow" && currentStep === 3 && (
+        <ThanosSnapEffect triggerDissolve={triggerThanos} onDissolveComplete={handleStep3ThanosComplete}>
+        <div 
+          id="Carte3" 
+          title="Carte3 - Step3 Location & Contact Card"
+          className="relative z-10 w-full max-w-3xl max-h-[90vh] overflow-y-auto p-8 space-y-6 bg-white rounded-2xl animate-fadeIn"
+        >
+          <div id="Header3" title="Header3 - Title Section" className="text-center">
+            <h1 id="Titre3" title="Titre3 - App Title" className="text-4xl font-bold text-gray-900 mb-2">Koon</h1>
+          </div>
+
+          <div id="Step3Form1" title="Step3Form1 - Location & Contact Form" className="space-y-4">
+            <p id="Step3Label1" title="Step3Label1" className="text-sm text-gray-600 mb-3">
+              Localisation et contact :
+            </p>
+            
+            <div className="grid grid-cols-2 gap-4">
+              {/* Pays */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Pays *</label>
+                <select
+                  value={step3Data.pays}
+                  onChange={(e) => setStep3Data({...step3Data, pays: e.target.value})}
+                  className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-900 rounded-full focus:outline-none text-gray-900"
+                >
+                  <option value="">Sélectionnez</option>
+                  <option value="france">France</option>
+                  <option value="belgique">Belgique</option>
+                  <option value="suisse">Suisse</option>
+                  <option value="canada">Canada</option>
+                  <option value="usa">États-Unis</option>
+                  <option value="autre">Autre</option>
+                </select>
+              </div>
+              
+              {/* Téléphone */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Téléphone *</label>
+                <input
+                  type="tel"
+                  value={step3Data.telephone}
+                  onChange={(e) => setStep3Data({...step3Data, telephone: e.target.value})}
+                  className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-900 rounded-full focus:outline-none text-gray-900"
+                  placeholder="+33 6 12 34 56 78"
+                />
+              </div>
+              
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Email *</label>
+                <input
+                  type="email"
+                  value={step3Data.email}
+                  onChange={(e) => setStep3Data({...step3Data, email: e.target.value})}
+                  className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-900 rounded-full focus:outline-none text-gray-900"
+                  placeholder="email@example.com"
+                />
+              </div>
+              
+              {/* Email secondaire */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Email secondaire</label>
+                <input
+                  type="email"
+                  value={step3Data.emailSecondaire}
+                  onChange={(e) => setStep3Data({...step3Data, emailSecondaire: e.target.value})}
+                  className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-900 rounded-full focus:outline-none text-gray-900"
+                  placeholder="email2@example.com"
+                />
+              </div>
+              
+              {/* Région */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Région *</label>
+                <input
+                  type="text"
+                  value={step3Data.region}
+                  onChange={(e) => setStep3Data({...step3Data, region: e.target.value})}
+                  className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-900 rounded-full focus:outline-none text-gray-900"
+                  placeholder="Île-de-France"
+                />
+              </div>
+              
+              {/* Ville */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Ville *</label>
+                <input
+                  type="text"
+                  value={step3Data.ville}
+                  onChange={(e) => setStep3Data({...step3Data, ville: e.target.value})}
+                  className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-900 rounded-full focus:outline-none text-gray-900"
+                  placeholder="Paris"
+                />
+              </div>
+              
+              {/* Quartier */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Quartier</label>
+                <input
+                  type="text"
+                  value={step3Data.quartier}
+                  onChange={(e) => setStep3Data({...step3Data, quartier: e.target.value})}
+                  className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-900 rounded-full focus:outline-none text-gray-900"
+                  placeholder="Montmartre"
+                />
+              </div>
+              
+              {/* Latitude */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Latitude</label>
+                <input
+                  type="text"
+                  value={step3Data.latitude}
+                  onChange={(e) => setStep3Data({...step3Data, latitude: e.target.value})}
+                  className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-900 rounded-full focus:outline-none text-gray-900"
+                  placeholder="48.8566"
+                />
+              </div>
+              
+              {/* Longitude */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Longitude</label>
+                <input
+                  type="text"
+                  value={step3Data.longitude}
+                  onChange={(e) => setStep3Data({...step3Data, longitude: e.target.value})}
+                  className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-900 rounded-full focus:outline-none text-gray-900"
+                  placeholder="2.3522"
+                />
+              </div>
+            </div>
+            
+            {/* Adresse postale */}
+            <div>
+              <label className="block text-sm font-medium text-gray-900 mb-2">Adresse postale *</label>
+              <textarea
+                value={step3Data.adressePostale}
+                onChange={(e) => setStep3Data({...step3Data, adressePostale: e.target.value})}
+                className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-900 rounded-2xl focus:outline-none text-gray-900 resize-none"
+                rows={3}
+                placeholder="123 Rue de la Paix, 75001 Paris, France"
+              />
+            </div>
+            
+            {/* Carte simple */}
+            <div className="bg-gray-100 border-2 border-gray-900 rounded-2xl p-4 h-64 flex items-center justify-center">
+              <div className="text-center text-gray-600">
+                <svg className="w-16 h-16 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <p className="text-sm">Carte géographique</p>
+                <p className="text-xs mt-1">
+                  {step3Data.latitude && step3Data.longitude 
+                    ? `${step3Data.latitude}, ${step3Data.longitude}`
+                    : "Entrez latitude/longitude"}
+                </p>
+              </div>
+            </div>
+            
+            {error && (
+              <p className="text-sm text-red-600">{error}</p>
+            )}
+            
+            {/* Masquer bouton après succès */}
+            {stepStatus !== "success" && (
+              <div className="flex justify-center mt-8">
+                <button
+                  id="BtnValidateStep3"
+                  title="BtnValidateStep3 - Validate Step3 Button"
+                  onClick={handleValidateStep3}
+                  disabled={
+                    stepStatus === "validating" ||
+                    !step3Data.pays || !step3Data.telephone || !step3Data.email ||
+                    !step3Data.region || !step3Data.ville || !step3Data.adressePostale
                   }
                   className="py-3 px-8 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-full font-medium transition-colors border-2 border-gray-900"
                 >

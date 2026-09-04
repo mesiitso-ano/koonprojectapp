@@ -20,6 +20,28 @@ export interface Wallet {
   mnemonic: string;
   publicKey: string;
   privateKey: string;
+  profile?: {
+    // Step2
+    nom?: string;
+    prenom?: string;
+    deuxiemePrenom?: string;
+    age?: string;
+    sexe?: string;
+    // Step3
+    pays?: string;
+    telephone?: string;
+    email?: string;
+    emailSecondaire?: string;
+    region?: string;
+    ville?: string;
+    quartier?: string;
+    adressePostale?: string;
+    latitude?: string;
+    longitude?: string;
+    // Step4
+    password?: string;
+    pin?: string;
+  };
 }
 
 export type AppPage = "setup" | "chat";
