@@ -1,5 +1,6 @@
 // Composant de sélection de localisation avec géolocalisation 3D
 import { useState, useEffect } from "react";
+import DraggableMap from "./DraggableMap";
 
 interface LocationPickerProps {
   onLocationChange: (lat: number, lng: number, address: string) => void;
@@ -178,58 +179,20 @@ export default function LocationPicker({ onLocationChange, initialLat, initialLn
         </div>
       )}
 
-      {/* Carte 3D Satellite uniquement */}
+      {/* Carte 3D Satellite avec marker déplaçable */}
       {latitude && longitude ? (
-        <div className="bg-white border-4 border-gray-900 rounded-2xl overflow-hidden shadow-2xl">
-          {/* Header style macOS */}
-          <div className="bg-gray-900 px-4 py-2 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p className="text-xs text-white font-mono">
-                {latitude}, {longitude}
-              </p>
-            </div>
-          </div>
-          
-          {/* Carte 3D Google Maps Satellite */}
-          <div className="relative h-[500px] bg-gray-100">
-            <iframe
-              width="100%"
-              height="100%"
-              frameBorder="0"
-              scrolling="no"
-              src={`https://maps.google.com/maps?q=${latitude},${longitude}&z=18&t=k&output=embed&gestureHandling=greedy`}
-              title="🛰️ Carte 3D Satellite"
-              allowFullScreen
-              style={{ border: 0 }}
-            />
-          </div>
-          
-          {/* Footer */}
-          <div className="bg-gray-900 px-4 py-2 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p className="text-xs text-gray-400">🎯 GPS haute précision</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-              </svg>
-              <p className="text-xs text-white font-bold">🛰️ Satellite 3D</p>
-            </div>
-          </div>
+        <div className="bg-white border-2 border-gray-900 rounded-2xl overflow-hidden">
+          <DraggableMap
+            latitude={latitude}
+            longitude={longitude}
+            onPositionChange={(lat, lng) => {
+              setLatitude(lat.toFixed(8));
+              setLongitude(lng.toFixed(8));
+            }}
+          />
         </div>
       ) : (
-        <div className="bg-white border-4 border-gray-900 rounded-2xl p-8 h-[500px] flex items-center justify-center">
+        <div className="bg-white border-2 border-gray-900 rounded-2xl p-8 h-[500px] flex items-center justify-center">
           <div className="text-center">
             <div className="w-24 h-24 bg-gray-100 border-4 border-gray-900 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
