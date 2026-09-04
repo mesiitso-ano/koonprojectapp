@@ -209,20 +209,12 @@ export default function SetupPage() {
     // Validation après 3 secondes
     setTimeout(() => {
       if (reconstructedMnemonic === mnemonic.trim()) {
-        // Succès
+        // Succès - Animation Step1 va démarrer
         setStepStatus("success");
         setError("");
-        
-        // Attendre la FIN COMPLÈTE de l'animation Step1
-        // - Check fade-in : 500ms
-        // - Couleur coule dans tige : 1500ms
-        // - Step monte de 30px : 1000ms
-        // Total: 3000ms
-        console.log("✅ stepStatus = 'success' - Démarrage timer 3s pour Thanos");
-        setTimeout(() => {
-          console.log("🔥🔥🔥 DÉCLENCHEMENT THANOS MAINTENANT !");
-          setTriggerThanos(true);
-        }, 3000); // 3s après stepStatus = "success"
+        console.log("✅ Validation réussie - Animation Step1 démarre (3s)");
+        // Note: Pas de déclenchement automatique Thanos
+        // L'utilisateur doit cliquer "Suivant" après l'animation
       } else {
         // Erreur
         setStepStatus("error");
@@ -238,6 +230,13 @@ export default function SetupPage() {
         }, 2000);
       }
     }, 3000);
+  };
+
+  // Passer au Step2 avec effet Thanos
+  const handleGoToStep2 = () => {
+    console.log("🔥 Clic 'Suivant' - Déclenchement Thanos !");
+    setTriggerThanos(true);
+    // handleThanosComplete sera appelé automatiquement après la désintégration
   };
 
   // Restaurer un wallet existant
@@ -449,28 +448,37 @@ export default function SetupPage() {
               <p id="ErrorValidate1" title="ErrorValidate1 - Validation Error" className="text-sm text-red-600">{error}</p>
             )}
             
-            {/* Boutons Valider et icône Coller - centrés et descendus */}
+            {/* Boutons Valider/Suivant et icône Coller - centrés et descendus */}
             <div className="flex items-center justify-center gap-3 mt-8">
               <button
                 id="BtnValidate1"
-                title="BtnValidate1 - Validate Button"
-                onClick={handleValidateMnemonic}
-                disabled={validationWords.some(w => !w.trim()) || stepStatus === "validating"}
+                title="BtnValidate1 - Validate/Next Button"
+                onClick={stepStatus === "success" ? handleGoToStep2 : handleValidateMnemonic}
+                disabled={
+                  stepStatus === "validating" || 
+                  (stepStatus !== "success" && validationWords.some(w => !w.trim()))
+                }
                 className="py-3 px-8 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-full font-medium transition-colors border-2 border-gray-900"
               >
-                {stepStatus === "validating" ? "Validation..." : "Valider"}
+                {stepStatus === "validating" 
+                  ? "Validation..." 
+                  : stepStatus === "success" 
+                    ? "Suivant" 
+                    : "Valider"}
               </button>
               
-              {/* Icône Coller */}
-              <button
-                id="BtnPasteIcon1"
-                title="BtnPasteIcon1 - Paste Icon Button"
-                onClick={handlePasteAllWords}
-                disabled={stepStatus === "validating"}
-                className="p-3 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-full transition-colors border-2 border-gray-900"
-              >
-                📋
-              </button>
+              {/* Icône Coller - masquée après succès */}
+              {stepStatus !== "success" && (
+                <button
+                  id="BtnPasteIcon1"
+                  title="BtnPasteIcon1 - Paste Icon Button"
+                  onClick={handlePasteAllWords}
+                  disabled={stepStatus === "validating"}
+                  className="p-3 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-full transition-colors border-2 border-gray-900"
+                >
+                  📋
+                </button>
+              )}
             </div>
           </div>
           </ThanosSnapEffect>
