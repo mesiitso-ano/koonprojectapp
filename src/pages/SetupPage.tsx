@@ -453,10 +453,22 @@ export default function SetupPage() {
             
             {/* Boutons Valider/Suivant et icône Coller - centrés et descendus */}
             <div className="flex items-center justify-center gap-3 mt-8">
+              {/* DEBUG : Afficher stepStatus */}
+              {console.log("🎯 RENDER Bouton - stepStatus:", stepStatus)}
+              
               <button
                 id="BtnValidate1"
                 title="BtnValidate1 - Validate/Next Button"
-                onClick={stepStatus === "success" ? handleGoToStep2 : handleValidateMnemonic}
+                onClick={() => {
+                  console.log("🔥🔥 CLIC BOUTON ! stepStatus:", stepStatus);
+                  if (stepStatus === "success") {
+                    console.log("✅ Appel handleGoToStep2");
+                    handleGoToStep2();
+                  } else {
+                    console.log("✅ Appel handleValidateMnemonic");
+                    handleValidateMnemonic();
+                  }
+                }}
                 disabled={
                   stepStatus === "validating" || 
                   (stepStatus !== "success" && validationWords.some(w => !w.trim()))
