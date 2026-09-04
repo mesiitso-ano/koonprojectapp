@@ -3,6 +3,17 @@ import { create } from "zustand";
 import type { AppPage, Contact, Message, Wallet } from "../types";
 import { invoke } from "@tauri-apps/api/core";
 
+interface AppSettings {
+  notifications: boolean;
+  darkMode: boolean;
+  autoUpdate: boolean;
+  soundEffects: boolean;
+  encryption: boolean;
+  autoSave: boolean;
+  compactMode: boolean;
+  showOnlineStatus: boolean;
+}
+
 interface AppState {
   // État de navigation
   currentPage: AppPage;
@@ -26,6 +37,10 @@ interface AppState {
   selectContact: (contactId: string) => void;
   sendMessage: (content: string) => Promise<void>;
   addMessage: (message: Message) => void;
+
+  // Paramètres utilisateur
+  settings: AppSettings;
+  updateSetting: <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => void;
 
   // Initialisation au démarrage
   initializeApp: () => Promise<void>;
@@ -84,6 +99,27 @@ export const useAppStore = create<AppState>((set, get) => ({
     invoke<Message[]>("load_messages", { contactId })
       .then((messages) => set({ messages }))
       .catch(console.error);
+  },
+
+  // Paramètres par défaut
+  settings: {
+    notifications: true,
+    darkMode: false,
+    autoUpdate: true,
+    soundEffects: true,
+    encryption: true,
+    autoSave: true,
+    compactMode: false,
+    showOnlineStatus: true,
+  },
+
+  updateSetting: (key, value) => {
+    set((state) => ({
+      settings: {
+        ...state.settings,
+        [key]: value,
+      },
+    }));
   },
 
   sendMessage: async (content) => {

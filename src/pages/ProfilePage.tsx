@@ -1,11 +1,12 @@
 // Page de profil utilisateur — affichage et édition des informations
 import { useState } from "react";
 import { useAppStore } from "../store/appStore";
+import ToggleSwitch from "../components/ToggleSwitch";
 
 type TabType = "profil" | "parametres" | "contacts";
 
 export default function ProfilePage() {
-  const { wallet, setCurrentPage, contacts, addContact, updateProfile } = useAppStore();
+  const { wallet, setCurrentPage, contacts, addContact, updateProfile, settings, updateSetting } = useAppStore();
   const [activeTab, setActiveTab] = useState<TabType>("profil");
   const [isEditing, setIsEditing] = useState(false);
   const [showMnemonic, setShowMnemonic] = useState(false);
@@ -283,7 +284,105 @@ export default function ProfilePage() {
 
         {/* ONGLET PARAMÈTRES */}
         {activeTab === "parametres" && (
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto space-y-6">
+            
+            {/* Section Toggle Switches */}
+            <div className="bg-white border-2 border-gray-900 rounded-2xl p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">⚙️ Préférences de l'application</h2>
+              <div className="space-y-4">
+                
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-300">
+                  <div>
+                    <p className="font-medium text-gray-900">🔔 Notifications</p>
+                    <p className="text-sm text-gray-600">Recevoir les notifications de nouveaux messages</p>
+                  </div>
+                  <ToggleSwitch
+                    enabled={settings.notifications}
+                    onToggle={(value) => updateSetting("notifications", value)}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-300">
+                  <div>
+                    <p className="font-medium text-gray-900">🌙 Mode sombre</p>
+                    <p className="text-sm text-gray-600">Activer le thème sombre de l'application</p>
+                  </div>
+                  <ToggleSwitch
+                    enabled={settings.darkMode}
+                    onToggle={(value) => updateSetting("darkMode", value)}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-300">
+                  <div>
+                    <p className="font-medium text-gray-900">🔄 Mises à jour automatiques</p>
+                    <p className="text-sm text-gray-600">Télécharger et installer les mises à jour</p>
+                  </div>
+                  <ToggleSwitch
+                    enabled={settings.autoUpdate}
+                    onToggle={(value) => updateSetting("autoUpdate", value)}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-300">
+                  <div>
+                    <p className="font-medium text-gray-900">🔊 Effets sonores</p>
+                    <p className="text-sm text-gray-600">Sons de notification et interactions</p>
+                  </div>
+                  <ToggleSwitch
+                    enabled={settings.soundEffects}
+                    onToggle={(value) => updateSetting("soundEffects", value)}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-300">
+                  <div>
+                    <p className="font-medium text-gray-900">🔐 Chiffrement de bout en bout</p>
+                    <p className="text-sm text-gray-600">Chiffrer tous les messages (recommandé)</p>
+                  </div>
+                  <ToggleSwitch
+                    enabled={settings.encryption}
+                    onToggle={(value) => updateSetting("encryption", value)}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-300">
+                  <div>
+                    <p className="font-medium text-gray-900">💾 Sauvegarde automatique</p>
+                    <p className="text-sm text-gray-600">Sauvegarder les modifications instantanément</p>
+                  </div>
+                  <ToggleSwitch
+                    enabled={settings.autoSave}
+                    onToggle={(value) => updateSetting("autoSave", value)}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-300">
+                  <div>
+                    <p className="font-medium text-gray-900">📱 Mode compact</p>
+                    <p className="text-sm text-gray-600">Interface utilisateur réduite</p>
+                  </div>
+                  <ToggleSwitch
+                    enabled={settings.compactMode}
+                    onToggle={(value) => updateSetting("compactMode", value)}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-300">
+                  <div>
+                    <p className="font-medium text-gray-900">🟢 Statut en ligne</p>
+                    <p className="text-sm text-gray-600">Montrer votre statut de connexion</p>
+                  </div>
+                  <ToggleSwitch
+                    enabled={settings.showOnlineStatus}
+                    onToggle={(value) => updateSetting("showOnlineStatus", value)}
+                  />
+                </div>
+
+              </div>
+            </div>
+
+            {/* Section Édition profil */}
             <div className="bg-white border-2 border-gray-900 rounded-2xl p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-gray-900">✏️ Modifier mes informations</h2>
