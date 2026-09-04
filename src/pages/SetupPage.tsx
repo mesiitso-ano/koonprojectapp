@@ -123,10 +123,10 @@ export default function SetupPage() {
     
     // PUIS passer au Step2 après un court délai
     setTimeout(() => {
-      setTriggerThanos(false);
+      setTriggerThanos(false); // Reset trigger
       setCurrentStep(2);
-      setStepProgress(0);
-      setStepStatus("progress");
+      setStepProgress(0); // Reset progress pour Step2
+      setStepStatus("progress"); // Reset status
     }, 100); // Délai minimal pour que Carte1 disparaisse
   };
 
@@ -241,6 +241,50 @@ export default function SetupPage() {
         }, 2000);
       }
     }, 3000);
+  };
+
+  // Valider Step2 (formulaire)
+  const handleValidateStep2 = () => {
+    // Vérifier que les champs obligatoires sont remplis
+    if (!step2Data.nom.trim() || !step2Data.prenom.trim() || !step2Data.age || !step2Data.sexe) {
+      setError("Veuillez remplir tous les champs obligatoires");
+      return;
+    }
+    
+    setStepProgress(100); // 100% atteint
+    setStepStatus("validating"); // Loader tournant
+    setError("");
+    
+    // Validation après 3 secondes
+    setTimeout(() => {
+      setStepStatus("success");
+      console.log("✅ Validation Step2 réussie - Animation Step2 démarre (3s)");
+      
+      // APRÈS 3s (fin animation Step2) → Désintégration automatique
+      setTimeout(() => {
+        console.log("🔥 Animation Step2 terminée - Déclenchement AUTOMATIQUE Thanos Step2 !");
+        setTriggerThanos(true);
+      }, 3000); // 3s pour l'animation Step2 complète
+    }, 3000);
+  };
+
+  // Callback après dissolution Thanos Step2
+  const handleStep2ThanosComplete = () => {
+    console.log("✅ Désintégration Step2 terminée - Passage au Step3 ou ChatPage");
+    
+    // Créer le wallet et passer à la page Chat
+    const keypair = generateKeypairFromMnemonic(mnemonic);
+    setWallet({
+      mnemonic: mnemonic,
+      publicKey: keypair.publicKey,
+      privateKey: keypair.privateKey,
+    });
+    
+    // Transition vers ChatPage
+    setTimeout(() => {
+      setTriggerThanos(false);
+      setCurrentPage("chat");
+    }, 100);
   };
 
   // Restaurer un wallet existant
@@ -529,6 +573,7 @@ export default function SetupPage() {
       
       {/* CARTE2 - Affichée UNIQUEMENT quand currentStep === 2 (après désintégration) */}
       {currentView === "signup-flow" && currentStep === 2 && (
+        <ThanosSnapEffect triggerDissolve={triggerThanos} onDissolveComplete={handleStep2ThanosComplete}>
         <div 
           id="Carte2" 
           title="Carte2 - Step2 Personal Info Card"
@@ -612,16 +657,29 @@ export default function SetupPage() {
               <p className="text-sm text-red-600">{error}</p>
             )}
             
-            <div className="flex justify-center mt-8">
-              <button
-                className="py-3 px-8 bg-gray-900 hover:bg-gray-800 text-white rounded-full font-medium transition-colors border-2 border-gray-900"
-                onClick={() => console.log("Step2 Suivant", step2Data)}
-              >
-                Suivant
-              </button>
-            </div>
+            {/* Masquer bouton après succès (désintégration automatique) */}
+            {stepStatus !== "success" && (
+              <div className="flex justify-center mt-8">
+                <button
+                  id="BtnValidateStep2"
+                  title="BtnValidateStep2 - Validate Step2 Button"
+                  onClick={handleValidateStep2}
+                  disabled={
+                    stepStatus === "validating" ||
+                    !step2Data.nom.trim() || 
+                    !step2Data.prenom.trim() || 
+                    !step2Data.age || 
+                    !step2Data.sexe
+                  }
+                  className="py-3 px-8 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-full font-medium transition-colors border-2 border-gray-900"
+                >
+                  {stepStatus === "validating" ? "Validation..." : "Valider"}
+                </button>
+              </div>
+            )}
           </div>
         </div>
+        </ThanosSnapEffect>
       )}
     </div>
   );
