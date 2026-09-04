@@ -44,4 +44,4 @@ export interface Wallet {
   };
 }
 
-export type AppPage = "setup" | "chat" | "profile";
+export type AppPage = "setup" | "chat" | "profile" | "admin";

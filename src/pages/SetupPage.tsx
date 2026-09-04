@@ -5,7 +5,7 @@ import { generateMnemonic, validateMnemonic } from "bip39";
 import { generateKeypairFromMnemonic } from "../lib/crypto";
 import Loader from "../components/Loader";
 import StepIndicator from "../components/StepIndicator";
-import { ThanosSnapEffect } from "../components/ThanosSnapEffect";
+import SaveProgressLoader from "../components/SaveProgressLoader";
 import { Buffer } from "buffer";
 
 // Polyfill Buffer pour bip39
@@ -33,13 +33,14 @@ export default function SetupPage() {
   // État pour les 24 mots de validation (tableau)
   const [validationWords, setValidationWords] = useState<string[]>(Array(24).fill(""));
   
-  // État pour déclencher l'effet Thanos
-  const [triggerThanos, setTriggerThanos] = useState(false);
+  // État pour déclencher le loader de sauvegarde
+  const [showSaveLoader, setShowSaveLoader] = useState(false);
+  const [saveLoaderMessage, setSaveLoaderMessage] = useState("Enregistrement des données...");
   
-  // DEBUG : Logger quand triggerThanos change
+  // DEBUG : Logger quand showSaveLoader change
   useEffect(() => {
-    console.log("🎯 STATE triggerThanos changé:", triggerThanos);
-  }, [triggerThanos]);
+    console.log("🎯 STATE showSaveLoader changé:", showSaveLoader);
+  }, [showSaveLoader]);
   
   // États Step2 (formulaire)
   const [step2Data, setStep2Data] = useState({
@@ -136,20 +137,15 @@ export default function SetupPage() {
     setError("");
   };
 
-  // Callback après dissolution Thanos
-  const handleThanosComplete = () => {
-    console.log("✅ Désintégration terminée - Passage immédiat au Step2");
+  // Callback après sauvegarde Step1
+  const handleSaveStep1Complete = () => {
+    console.log("✅ Sauvegarde Step1 terminée - Passage immédiat au Step2");
     
-    // D'ABORD masquer Carte1 en changeant signupSubStep
-    setSignupSubStep("display"); // Retour au substep display
-    
-    // PUIS passer au Step2 après un court délai
-    setTimeout(() => {
-      setTriggerThanos(false); // Reset trigger
-      setCurrentStep(2);
-      setStepProgress(0); // Reset progress pour Step2
-      setStepStatus("progress"); // Reset status
-    }, 100); // Délai minimal pour que Carte1 disparaisse
+    setSignupSubStep("display");
+    setShowSaveLoader(false);
+    setCurrentStep(2);
+    setStepProgress(0);
+    setStepStatus("progress");
   };
 
   // Retour à la page initiale
@@ -243,10 +239,11 @@ export default function SetupPage() {
         setError("");
         console.log("✅ Validation réussie - Animation Step1 démarre (3s)");
         
-        // APRÈS 3s (fin animation Step1) → Désintégration automatique
+        // APRÈS 3s (fin animation Step1) → Loader sauvegarde automatique
         setTimeout(() => {
-          console.log("🔥 Animation Step1 terminée - Déclenchement AUTOMATIQUE Thanos !");
-          setTriggerThanos(true);
+          console.log("💾 Animation Step1 terminée - Déclenchement AUTOMATIQUE SaveLoader !");
+          setSaveLoaderMessage("💾 Sauvegarde Step1 en cours...");
+          setShowSaveLoader(true);
         }, 3000); // 3s pour l'animation Step1 complète
       } else {
         // Erreur
@@ -284,23 +281,21 @@ export default function SetupPage() {
       
       // APRÈS 3s (fin animation Step2) → Désintégration automatique
       setTimeout(() => {
-        console.log("🔥 Animation Step2 terminée - Déclenchement AUTOMATIQUE Thanos Step2 !");
-        setTriggerThanos(true);
+        console.log("💾 Animation Step2 terminée - Déclenchement AUTOMATIQUE SaveLoader !");
+        setSaveLoaderMessage("💾 Sauvegarde Step2 en cours...");
+        setShowSaveLoader(true);
       }, 3000); // 3s pour l'animation Step2 complète
     }, 3000);
   };
 
-  // Callback après dissolution Thanos Step2
-  const handleStep2ThanosComplete = () => {
-    console.log("✅ Désintégration Step2 terminée - Passage au Step3");
+  // Callback après sauvegarde Step2
+  const handleSaveStep2Complete = () => {
+    console.log("✅ Sauvegarde Step2 terminée - Passage au Step3");
     
-    // Transition vers Step3
-    setTimeout(() => {
-      setTriggerThanos(false);
-      setCurrentStep(3);
-      setStepProgress(0); // Reset progress pour Step3
-      setStepStatus("progress"); // Reset status
-    }, 100);
+    setShowSaveLoader(false);
+    setCurrentStep(3);
+    setStepProgress(0);
+    setStepStatus("progress");
   };
 
   // Valider Step3 (localisation & contact)
@@ -333,22 +328,21 @@ export default function SetupPage() {
       console.log("✅ Validation Step3 réussie - Animation Step3 démarre (3s)");
       
       setTimeout(() => {
-        console.log("🔥 Animation Step3 terminée - Déclenchement AUTOMATIQUE Thanos Step3 !");
-        setTriggerThanos(true);
+        console.log("💾 Animation Step3 terminée - Déclenchement AUTOMATIQUE SaveLoader !");
+        setSaveLoaderMessage("💾 Sauvegarde Step3 en cours...");
+        setShowSaveLoader(true);
       }, 3000);
     }, 3000);
   };
 
-  // Callback après dissolution Thanos Step3
-  const handleStep3ThanosComplete = () => {
-    console.log("✅ Désintégration Step3 terminée - Passage au Step4");
+  // Callback après sauvegarde Step3
+  const handleSaveStep3Complete = () => {
+    console.log("✅ Sauvegarde Step3 terminée - Passage au Step4");
     
-    setTimeout(() => {
-      setTriggerThanos(false);
-      setCurrentStep(4);
-      setStepProgress(0);
-      setStepStatus("progress");
-    }, 100);
+    setShowSaveLoader(false);
+    setCurrentStep(4);
+    setStepProgress(0);
+    setStepStatus("progress");
   };
 
   // Valider Step4 (sécurité)
@@ -394,36 +388,38 @@ export default function SetupPage() {
       console.log("✅ Validation Step4 réussie - Animation Step4 démarre (3s)");
       
       setTimeout(() => {
-        console.log("🔥 Animation Step4 terminée - Déclenchement AUTOMATIQUE Thanos Step4 !");
-        setTriggerThanos(true);
+        console.log("💾 Animation Step4 terminée - Déclenchement AUTOMATIQUE SaveLoader !");
+        setSaveLoaderMessage("💾 Création du compte et sauvegarde finale...");
+        setShowSaveLoader(true);
       }, 3000);
     }, 3000);
   };
 
-  // Callback après dissolution Thanos Step4
-  const handleStep4ThanosComplete = () => {
-    console.log("✅ Désintégration Step4 terminée - Création wallet et passage ProfilePage");
+  // Callback après sauvegarde Step4 (finale)
+  const handleSaveStep4Complete = () => {
+    console.log("✅ Sauvegarde Step4 terminée - Création wallet et passage ChatPage");
     
     // Créer le wallet avec toutes les données
     const keypair = generateKeypairFromMnemonic(mnemonic);
-    setWallet({
+    const newWallet = {
       mnemonic: mnemonic,
       publicKey: keypair.publicKey,
       privateKey: keypair.privateKey,
-      // Ajouter les données du profil
       profile: {
         ...step2Data,
         ...step3Data,
         password: step4Data.motDePasse,
         pin: step4Data.codePIN
       }
-    });
+    };
     
-    // Transition vers ChatPage (ProfilePage sera accessible depuis ChatPage)
-    setTimeout(() => {
-      setTriggerThanos(false);
-      setCurrentPage("chat");
-    }, 100);
+    setWallet(newWallet);
+    
+    // Ajouter à la liste des comptes (pour Admin)
+    // TODO: Implémenter addAccount dans le store
+    
+    setShowSaveLoader(false);
+    setCurrentPage("chat");
   };
 
   // Restaurer un wallet existant
@@ -591,8 +587,7 @@ export default function SetupPage() {
 
         {/* FLOW INSCRIPTION - Step 1 : Validation des 24 mots */}
         {currentView === "signup-flow" && signupSubStep === "validate" && currentStep === 1 && (
-          <ThanosSnapEffect triggerDissolve={triggerThanos} onDissolveComplete={handleThanosComplete}>
-            <div id="ValidateMode1" title="ValidateMode1 - Validate Mnemonic" className="space-y-4 animate-fadeIn">
+          <div id="ValidateMode1" title="ValidateMode1 - Validate Mnemonic" className="space-y-4 animate-fadeIn">
             <p id="ValidateLabel1" title="ValidateLabel1" className="text-sm text-gray-600 mb-3">
               Entrez les 24 mots pour valider :
             </p>
@@ -672,7 +667,6 @@ export default function SetupPage() {
               )}
             </div>
           </div>
-          </ThanosSnapEffect>
         )}
 
         {/* FLOW RESTAURATION - Connexion avec phrase existante */}
@@ -710,9 +704,8 @@ export default function SetupPage() {
       </div>
       )}
       
-      {/* CARTE2 - Affichée UNIQUEMENT quand currentStep === 2 (après désintégration) */}
+      {/* CARTE2 - Affichée UNIQUEMENT quand currentStep === 2 (après sauvegarde) */}
       {currentView === "signup-flow" && currentStep === 2 && (
-        <ThanosSnapEffect triggerDissolve={triggerThanos} onDissolveComplete={handleStep2ThanosComplete}>
         <div 
           id="Carte2" 
           title="Carte2 - Step2 Personal Info Card"
@@ -818,12 +811,10 @@ export default function SetupPage() {
             )}
           </div>
         </div>
-        </ThanosSnapEffect>
       )}
       
       {/* CARTE4 - Affichée UNIQUEMENT quand currentStep === 4 */}
       {currentView === "signup-flow" && currentStep === 4 && (
-        <ThanosSnapEffect triggerDissolve={triggerThanos} onDissolveComplete={handleStep4ThanosComplete}>
         <div 
           id="Carte4" 
           title="Carte4 - Step4 Security Card"
@@ -916,12 +907,10 @@ export default function SetupPage() {
             )}
           </div>
         </div>
-        </ThanosSnapEffect>
       )}
       
       {/* CARTE3 - Affichée UNIQUEMENT quand currentStep === 3 */}
       {currentView === "signup-flow" && currentStep === 3 && (
-        <ThanosSnapEffect triggerDissolve={triggerThanos} onDissolveComplete={handleStep3ThanosComplete}>
         <div 
           id="Carte3" 
           title="Carte3 - Step3 Location & Contact Card"
@@ -1104,7 +1093,19 @@ export default function SetupPage() {
             )}
           </div>
         </div>
-        </ThanosSnapEffect>
+      )}
+      
+      {/* Loader de sauvegarde global (6 secondes) */}
+      {showSaveLoader && (
+        <SaveProgressLoader 
+          message={saveLoaderMessage}
+          onComplete={() => {
+            if (currentStep === 1) handleSaveStep1Complete();
+            else if (currentStep === 2) handleSaveStep2Complete();
+            else if (currentStep === 3) handleSaveStep3Complete();
+            else if (currentStep === 4) handleSaveStep4Complete();
+          }}
+        />
       )}
     </div>
   );
