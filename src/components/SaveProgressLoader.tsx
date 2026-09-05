@@ -25,11 +25,6 @@ export default function SaveProgressLoader({ onComplete, message = "Enregistreme
         <p className="mt-8 text-gray-900 text-xl font-bold">
           {message}
         </p>
-        
-        {/* Barre de progression */}
-        <div className="mt-4 w-64 h-2 bg-gray-200 rounded-full overflow-hidden">
-          <div className="h-full bg-gray-900 rounded-full animate-progress"></div>
-        </div>
       </div>
 
       <style>{`
@@ -88,19 +83,6 @@ export default function SaveProgressLoader({ onComplete, message = "Enregistreme
           95%, 100% {
             transform: scale(1) rotate(360deg);
           }
-        }
-
-        @keyframes progress {
-          0% {
-            width: 0%;
-          }
-          100% {
-            width: 100%;
-          }
-        }
-
-        .animate-progress {
-          animation: progress 6s linear forwards;
         }
       `}</style>
     </div>
