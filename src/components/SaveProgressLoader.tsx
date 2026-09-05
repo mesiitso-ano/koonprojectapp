@@ -22,7 +22,7 @@ export default function SaveProgressLoader({ onComplete, message = "Enregistreme
         </div>
         
         {/* Message */}
-        <p className="mt-8 text-gray-900 text-xl font-bold animate-pulse">
+        <p className="mt-8 text-gray-900 text-xl font-bold">
           {message}
         </p>
         
