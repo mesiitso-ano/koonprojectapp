@@ -26,22 +26,39 @@ export default function App() {
     initializeApp();
   }, [initializeApp]);
 
-  // Gestion du raccourci FN + Enter pour Admin
+  // Gestion du double Ctrl pour Admin
   useEffect(() => {
+    let ctrlPressCount = 0;
+    let ctrlTimeout: number | null = null;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Si Ctrl/Cmd + Enter (simule FN + Enter)
-      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
-        e.preventDefault();
-        console.log("🔓 Déverrouillage Admin détecté !");
+      if (e.key === "Control") {
+        ctrlPressCount++;
         
-        // Afficher l'animation
-        setShowAdminUnlock(true);
-        
-        // Après 2s, rediriger vers AdminPage
-        setTimeout(() => {
-          setShowAdminUnlock(false);
-          setCurrentPage("admin");
-        }, 2000);
+        // Si déjà 2 appuis sur Ctrl
+        if (ctrlPressCount === 2) {
+          e.preventDefault();
+          console.log("🔓 Double Ctrl détecté ! Déverrouillage Admin...");
+          
+          // Afficher l'animation
+          setShowAdminUnlock(true);
+          
+          // Après 2s, rediriger vers AdminPage
+          setTimeout(() => {
+            setShowAdminUnlock(false);
+            setCurrentPage("admin");
+          }, 2000);
+          
+          // Reset
+          ctrlPressCount = 0;
+          if (ctrlTimeout) clearTimeout(ctrlTimeout);
+        } else {
+          // Reset après 500ms si pas de 2ème appui
+          if (ctrlTimeout) clearTimeout(ctrlTimeout);
+          ctrlTimeout = setTimeout(() => {
+            ctrlPressCount = 0;
+          }, 500);
+        }
       }
     };
 
@@ -49,6 +66,7 @@ export default function App() {
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
+      if (ctrlTimeout) clearTimeout(ctrlTimeout);
     };
   }, [setCurrentPage]);
 
