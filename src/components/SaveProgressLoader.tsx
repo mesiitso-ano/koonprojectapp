@@ -13,9 +13,12 @@ export default function SaveProgressLoader({ onComplete, message = "Enregistreme
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/95 backdrop-blur-sm">
       <div className="text-center">
-        {/* Loader animé */}
-        <div className="loader-container">
-          <div className="loader" />
+        {/* Loader 4 cercles noirs rotatifs */}
+        <div className="loader-spin988">
+          <div className="circle" />
+          <div className="circle" />
+          <div className="circle" />
+          <div className="circle" />
         </div>
         
         {/* Message */}
@@ -25,49 +28,65 @@ export default function SaveProgressLoader({ onComplete, message = "Enregistreme
         
         {/* Barre de progression */}
         <div className="mt-4 w-64 h-2 bg-gray-200 rounded-full overflow-hidden">
-          <div className="h-full bg-yellow-500 rounded-full animate-progress"></div>
+          <div className="h-full bg-gray-900 rounded-full animate-progress"></div>
         </div>
       </div>
 
       <style>{`
-        .loader-container {
-          width: 84px;
-          height: 84px;
+        .loader-spin988 {
+          --dim: 5rem;
+          width: var(--dim);
+          height: var(--dim);
           position: relative;
-          overflow: hidden;
+          animation: spin988 2s linear infinite;
           margin: 0 auto;
         }
 
-        .loader:before,
-        .loader:after {
-          content: "";
-          position: absolute;
-          left: 50%;
-          bottom: 0;
-          width: 64px;
-          height: 64px;
+        .loader-spin988 .circle {
+          --color: #000;
+          --dim: 2rem;
+          width: var(--dim);
+          height: var(--dim);
+          background-color: var(--color);
           border-radius: 50%;
-          background: #FFD700; /* Jaune doré */
-          transform: translate(-50%, 100%) scale(0);
-          animation: push_save 3s infinite ease-in; /* 3s (2 cycles en 6s) */
+          position: absolute;
         }
 
-        .loader:after {
-          animation-delay: 1.5s;
+        .loader-spin988 .circle:nth-child(1) {
+          top: 0;
+          left: 0;
         }
 
-        @keyframes push_save {
+        .loader-spin988 .circle:nth-child(2) {
+          top: 0;
+          right: 0;
+        }
+
+        .loader-spin988 .circle:nth-child(3) {
+          bottom: 0;
+          left: 0;
+        }
+
+        .loader-spin988 .circle:nth-child(4) {
+          bottom: 0;
+          right: 0;
+        }
+
+        @keyframes spin988 {
           0% {
-            transform: translate(-50%, 100%) scale(1);
+            transform: scale(1) rotate(0);
           }
-          15%, 25% {
-            transform: translate(-50%, 50%) scale(1);
+          20%, 25% {
+            transform: scale(1.3) rotate(90deg);
           }
-          50%, 75% {
-            transform: translate(-50%, -30%) scale(0.5);
+          45%, 50% {
+            transform: scale(1) rotate(180deg);
           }
-          80%, 100% {
-            transform: translate(-50%, -50%) scale(0);
+          70%, 75% {
+            transform: scale(1.3) rotate(270deg);
+          }
+          95%, 100% {
+            transform: scale(1) rotate(360deg);
           }
         }
 
