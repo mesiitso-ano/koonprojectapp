@@ -1,10 +1,9 @@
 // Loader d'enregistrement — 6 secondes pour sauvegarder les données
 interface SaveProgressLoaderProps {
   onComplete: () => void;
-  message?: string;
 }
 
-export default function SaveProgressLoader({ onComplete, message = "Enregistrement des données..." }: SaveProgressLoaderProps) {
+export default function SaveProgressLoader({ onComplete }: SaveProgressLoaderProps) {
   // Déclencher onComplete après 6 secondes
   setTimeout(() => {
     onComplete();
@@ -12,19 +11,12 @@ export default function SaveProgressLoader({ onComplete, message = "Enregistreme
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/95 backdrop-blur-sm">
-      <div className="text-center">
-        {/* Loader 4 cercles noirs rotatifs */}
-        <div className="loader-spin988">
-          <div className="circle" />
-          <div className="circle" />
-          <div className="circle" />
-          <div className="circle" />
-        </div>
-        
-        {/* Message */}
-        <p className="mt-8 text-gray-900 text-xl font-bold">
-          {message}
-        </p>
+      {/* Loader 4 cercles noirs rotatifs - centré */}
+      <div className="loader-spin988">
+        <div className="circle" />
+        <div className="circle" />
+        <div className="circle" />
+        <div className="circle" />
       </div>
 
       <style>{`

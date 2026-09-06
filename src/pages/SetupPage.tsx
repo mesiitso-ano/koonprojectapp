@@ -36,7 +36,6 @@ export default function SetupPage() {
   
   // État pour déclencher le loader de sauvegarde
   const [showSaveLoader, setShowSaveLoader] = useState(false);
-  const [saveLoaderMessage, setSaveLoaderMessage] = useState("Enregistrement des données...");
   
   // DEBUG : Logger quand showSaveLoader change
   useEffect(() => {
@@ -243,7 +242,6 @@ export default function SetupPage() {
         // APRÈS 3s (fin animation Step1) → Loader sauvegarde automatique
         setTimeout(() => {
           console.log("💾 Animation Step1 terminée - Déclenchement AUTOMATIQUE SaveLoader !");
-          setSaveLoaderMessage("💾 Sauvegarde Step1 en cours...");
           setShowSaveLoader(true);
         }, 3000); // 3s pour l'animation Step1 complète
       } else {
@@ -283,7 +281,6 @@ export default function SetupPage() {
       // APRÈS 3s (fin animation Step2) → Désintégration automatique
       setTimeout(() => {
         console.log("💾 Animation Step2 terminée - Déclenchement AUTOMATIQUE SaveLoader !");
-        setSaveLoaderMessage("💾 Sauvegarde Step2 en cours...");
         setShowSaveLoader(true);
       }, 3000); // 3s pour l'animation Step2 complète
     }, 3000);
@@ -330,7 +327,6 @@ export default function SetupPage() {
       
       setTimeout(() => {
         console.log("💾 Animation Step3 terminée - Déclenchement AUTOMATIQUE SaveLoader !");
-        setSaveLoaderMessage("💾 Sauvegarde Step3 en cours...");
         setShowSaveLoader(true);
       }, 3000);
     }, 3000);
@@ -390,7 +386,6 @@ export default function SetupPage() {
       
       setTimeout(() => {
         console.log("💾 Animation Step4 terminée - Déclenchement AUTOMATIQUE SaveLoader !");
-        setSaveLoaderMessage("💾 Création du compte et sauvegarde finale...");
         setShowSaveLoader(true);
       }, 3000);
     }, 3000);
@@ -1073,7 +1068,6 @@ export default function SetupPage() {
       {/* Loader de sauvegarde global (6 secondes) */}
       {showSaveLoader && (
         <SaveProgressLoader 
-          message={saveLoaderMessage}
           onComplete={() => {
             if (currentStep === 1) handleSaveStep1Complete();
             else if (currentStep === 2) handleSaveStep2Complete();
