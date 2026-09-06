@@ -35,10 +35,18 @@ const StepIndicator = memo(({ currentStep, stepProgress, stepStatus, totalSteps 
           if (progress >= 100) {
             progress = 100;
             clearInterval(interval);
+            
+            // ATTENDRE 300ms (durée transition CSS) avant de permettre le décalage
+            setTimeout(() => {
+              setCompletedSteps(prev => 
+                prev.map(cs => cs.step === currentStep ? { ...cs, fillProgress: 101 } : cs)
+              );
+            }, 300);
+          } else {
+            setCompletedSteps(prev => 
+              prev.map(cs => cs.step === currentStep ? { ...cs, fillProgress: progress } : cs)
+            );
           }
-          setCompletedSteps(prev => 
-            prev.map(cs => cs.step === currentStep ? { ...cs, fillProgress: progress } : cs)
-          );
         }, 30); // 30ms * 50 itérations = 1.5s
         
       }, 500);
@@ -130,8 +138,8 @@ const StepIndicator = memo(({ currentStep, stepProgress, stepStatus, totalSteps 
   // Calculer le décalage vertical : chaque step complété monte de 30px individuellement
   const getStepOffset = (step: number) => {
     const completedStep = completedSteps.find(cs => cs.step === step);
-    if (completedStep && completedStep.fillProgress === 100) {
-      return -30; // Monte de 30px
+    if (completedStep && completedStep.fillProgress > 100) {
+      return -30; // Monte de 30px APRÈS que la ligne soit remplie
     }
     return 0;
   };
